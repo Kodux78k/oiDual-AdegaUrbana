@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KOBLLUX Suite v6 | Ultimate Editor</title>
+    <title>KOBLLUX Marketing Suite</title>
     <!-- iOS Support -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -14,22 +14,22 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Color Thief (Extração de cor do logo) -->
+    <!-- Color Thief -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.2/color-thief.umd.js"></script>
     
-    <!-- HTML2Canvas (Exportação de imagem) -->
+    <!-- HTML2Canvas -->
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     
     <!-- QRCode.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Google Fonts Premium -->
+    <!-- Fonts Premium -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;600;800&family=Montserrat:wght@300;400;500;700;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
 
     <script>
         tailwind.config = {
@@ -38,20 +38,14 @@
                     fontFamily: {
                         'bebas': ['"Bebas Neue"', 'sans-serif'],
                         'mont': ['"Montserrat"', 'sans-serif'],
-                        'serif-display': ['"Playfair Display"', 'serif'],
-                        'inter': ['"Inter"', 'sans-serif'],
                     },
                     colors: {
-                        brand: {
-                            dark: '#050505',
-                            panel: '#0F0F0F',
-                            surface: '#18181B',
-                            gold: '#D4AF37',
-                            accent: '#EAB308'
-                        }
+                        'night-black': '#050505',
+                        'panel-dark': '#0f0f0f',
+                        'panel-light': '#1a1a1a',
                     },
                     boxShadow: {
-                        'glow': '0 0 20px rgba(234, 179, 8, 0.15)',
+                        'neon': '0 0 10px rgba(255, 255, 255, 0.1), 0 0 20px rgba(255, 255, 255, 0.05)',
                     }
                 }
             }
@@ -59,835 +53,687 @@
     </script>
 
     <style>
-        /* Base Reset & Scrollbars */
-        body { background-color: #050505; color: #e5e5e5; font-family: 'Montserrat', sans-serif; overflow: hidden; }
-        
-        .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+        /* UI Global */
+        body {
+            background-color: #000;
+            color: #e0e0e0;
+            font-family: 'Montserrat', sans-serif;
+            overflow: hidden;
+        }
+
+        /* Editor Scrollbar */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
         .custom-scroll::-webkit-scrollbar-track { background: #0f0f0f; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: #555; }
 
-        /* Inputs Clean */
-        .input-dark {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            transition: all 0.2s ease;
-        }
-        .input-dark:focus {
-            background: rgba(255, 255, 255, 0.06);
-            border-color: #EAB308;
-            outline: none;
+        /* Preview Area Specifics */
+        #menu-container, #promo-container {
+            font-family: 'Montserrat', sans-serif;
+            background-image: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            transition: all 0.3s ease;
         }
 
-        /* Color Picker Custom */
+        .menu-title-font { font-family: 'Bebas Neue', sans-serif; letter-spacing: 2px; }
+        
+        /* Dotted Leader for Prices */
+        .price-leader {
+            flex-grow: 1;
+            border-bottom: 1px dotted rgba(255,255,255,0.2);
+            margin: 0 10px;
+            position: relative;
+            top: -5px;
+        }
+
+        /* Inputs invisíveis */
+        .live-edit {
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            transition: 0.2s;
+            outline: none;
+            min-width: 20px;
+        }
+        .live-edit:hover, .live-edit:focus {
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.1);
+        }
+
+        /* Input Range Custom */
         input[type=color] {
-            -webkit-appearance: none; border: none; width: 32px; height: 32px; 
-            border-radius: 50%; cursor: pointer; padding: 0; background: transparent;
+            -webkit-appearance: none;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            overflow: hidden;
+            cursor: pointer;
+            padding: 0;
         }
         input[type=color]::-webkit-color-swatch-wrapper { padding: 0; }
-        input[type=color]::-webkit-color-swatch { border: 2px solid rgba(255,255,255,0.2); border-radius: 50%; }
+        input[type=color]::-webkit-color-swatch { border: none; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); }
 
-        /* Preview Formats */
-        .format-menu { width: 550px; min-height: 850px; transition: transform 0.3s ease; }
-        .format-story { width: 450px; height: 800px; transition: transform 0.3s ease; }
+        /* Tabs Styles */
+        .tab-btn.active {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            border-bottom: 2px solid #eab308;
+        }
+        .tab-btn {
+            color: #666;
+            border-bottom: 2px solid transparent;
+        }
 
-        /* Neon & Effects */
-        .neon-text { text-shadow: 0 0 10px currentColor; }
-        .glass-panel { background: rgba(255,255,255,0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); }
-        
-        /* Leaders */
-        .price-leader { flex-grow: 1; border-bottom: 1px dotted rgba(255,255,255,0.2); margin: 0 12px; position: relative; top: -5px; }
-
-        /* Animations */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-in { animation: fadeIn 0.3s ease-out forwards; }
+        /* Promo Container Text Stroke Effect */
+        .text-stroke {
+            -webkit-text-stroke: 1px rgba(255,255,255,0.2);
+            color: transparent;
+        }
     </style>
 </head>
-<body class="h-screen flex flex-col md:flex-row bg-brand-dark selection:bg-brand-accent selection:text-black">
+<body class="h-screen flex flex-col md:flex-row bg-black">
 
-    <!-- SIDEBAR EDITOR -->
-    <aside class="w-full md:w-[400px] bg-brand-panel border-r border-white/5 flex flex-col h-full z-30 shadow-2xl relative">
-        
-        <!-- Header -->
-        <div class="p-6 border-b border-white/5 bg-gradient-to-br from-[#121212] to-[#0a0a0a]">
+    <!-- SIDEBAR: EDITOR -->
+    <aside class="w-full md:w-[380px] bg-panel-dark border-r border-white/5 flex flex-col h-[40vh] md:h-full z-20 shadow-2xl">
+        <!-- Header Sidebar -->
+        <div class="p-6 border-b border-white/5 bg-gradient-to-r from-panel-dark to-panel-light">
             <div class="flex items-center justify-between mb-1">
-                <h1 class="text-2xl font-bebas text-white tracking-widest flex items-center gap-2">
-                    <i data-lucide="layers" class="text-brand-accent w-6 h-6"></i>
-                    KOBLLUX <span class="text-[9px] text-gray-500 font-mont ml-1 bg-white/5 px-1 rounded">v6.0</span>
-                </h1>
-                <button onclick="app.saveStateJSON()" class="text-gray-500 hover:text-white transition" title="Backup JSON">
-                    <i data-lucide="save" class="w-4 h-4"></i>
-                </button>
+                <h1 class="text-2xl font-bebas text-white tracking-widest"><i class="fas fa-layer-group text-yellow-500 mr-2"></i>KOBLLUX <span class="text-xs text-gray-500 font-mont font-normal ml-1">v4.0</span></h1>
+                <div class="h-2 w-2 rounded-full bg-green-500 shadow-[0_0_10px_#22c55e]"></div>
             </div>
-            <p class="text-[10px] uppercase tracking-[0.3em] text-gray-500">Marketing Intelligence Suite</p>
+            <p class="text-[10px] uppercase tracking-widest text-gray-500">Suite de Marketing para Adegas</p>
         </div>
 
-        <!-- Mode Switcher -->
-        <div class="flex border-b border-white/5 bg-[#050505]">
-            <button onclick="app.setMode('menu')" id="btn-mode-menu" class="flex-1 py-4 text-[10px] font-bold uppercase tracking-widest transition hover:bg-white/5 text-brand-accent border-b-2 border-brand-accent">
-                <div class="flex flex-col items-center gap-1">
-                    <i data-lucide="book-open" class="w-4 h-4"></i> Cardápio
-                </div>
+        <!-- TABS -->
+        <div class="flex border-b border-white/5 bg-panel-dark">
+            <button onclick="app.switchTab('menu')" id="tab-menu" class="tab-btn flex-1 py-3 text-xs font-bold uppercase tracking-wider hover:bg-white/5 transition active">
+                <i class="fas fa-wine-bottle mr-1"></i> Cardápio
             </button>
-            <button onclick="app.setMode('promo')" id="btn-mode-promo" class="flex-1 py-4 text-[10px] font-bold uppercase tracking-widest transition hover:bg-white/5 text-gray-500 border-b-2 border-transparent">
-                <div class="flex flex-col items-center gap-1">
-                    <i data-lucide="zap" class="w-4 h-4"></i> Story / Flyer
-                </div>
+            <button onclick="app.switchTab('promo')" id="tab-promo" class="tab-btn flex-1 py-3 text-xs font-bold uppercase tracking-wider hover:bg-white/5 transition">
+                <i class="fas fa-fire mr-1 text-red-500"></i> Promoção
             </button>
         </div>
 
-        <!-- Scrollable Content -->
-        <div id="editor-scroll" class="flex-1 overflow-y-auto custom-scroll p-5 space-y-6">
-            <!-- Dynamic Content Injected Here -->
+        <!-- Scroll Area -->
+        <div class="flex-1 overflow-y-auto custom-scroll p-4 space-y-6" id="editor-container">
+            <!-- JS vai injetar aqui dependendo da aba -->
         </div>
 
-        <!-- Footer Actions -->
-        <div class="p-5 bg-[#080808] border-t border-white/5 space-y-3 z-20">
-            <!-- Menu Actions -->
-            <div id="menu-only-actions" class="grid grid-cols-2 gap-3">
-                <button onclick="app.addSection('list')" class="py-3 bg-white/5 rounded-lg text-[10px] font-bold uppercase hover:bg-white/10 transition border border-white/5 flex items-center justify-center gap-2">
-                    <i data-lucide="list-plus" class="w-3 h-3"></i> Lista
+        <!-- Footer Sidebar Actions -->
+        <div class="p-4 bg-panel-dark border-t border-white/5 space-y-3">
+            <div id="menu-actions" class="grid grid-cols-2 gap-3">
+                <button onclick="app.addSection('list')" class="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-gray-300 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition border border-white/5">
+                    <i class="fas fa-list"></i> + Lista
                 </button>
-                <button onclick="app.addSection('grid')" class="py-3 bg-white/5 rounded-lg text-[10px] font-bold uppercase hover:bg-white/10 transition border border-white/5 flex items-center justify-center gap-2">
-                    <i data-lucide="grid" class="w-3 h-3"></i> Tabela
-                </button>
-            </div>
-
-            <!-- Promo Actions -->
-            <div id="promo-only-actions" class="hidden">
-                <button onclick="app.modal.open()" class="w-full py-3 bg-white/10 rounded-lg text-[10px] font-bold uppercase hover:bg-white/15 transition border border-white/10 text-brand-accent flex items-center justify-center gap-2">
-                    <i data-lucide="wand-2" class="w-4 h-4"></i> Assistente de Promoção
+                <button onclick="app.addSection('grid')" class="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-gray-300 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition border border-white/5">
+                    <i class="fas fa-table"></i> + Tabela
                 </button>
             </div>
-
-            <button onclick="app.exportImage()" id="btn-export" class="w-full bg-brand-accent hover:bg-yellow-400 text-black font-black py-4 rounded-xl shadow-glow transition-all transform active:scale-95 flex items-center justify-center gap-3 uppercase tracking-widest text-xs group">
-                <i data-lucide="download" class="w-4 h-4 group-hover:animate-bounce"></i> Exportar Imagem HD
+            
+            <button onclick="app.downloadImage()" id="btn-download" class="w-full bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 text-black font-bold py-4 rounded-lg shadow-neon transition transform active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest text-sm">
+                <i class="fas fa-download"></i> <span id="download-text">Exportar PNG</span>
             </button>
         </div>
     </aside>
 
-    <!-- PREVIEW AREA -->
-    <main class="flex-1 bg-[#020202] relative overflow-hidden flex flex-col">
-        <!-- Background Pattern -->
-        <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(#333 1px, transparent 1px); background-size: 24px 24px;"></div>
+    <!-- MAIN: PREVIEW AREA -->
+    <main class="flex-1 bg-[#0a0a0a] relative overflow-hidden flex flex-col items-center justify-center">
+        <!-- Background Grid Effect -->
+        <div class="absolute inset-0 opacity-20" style="background-image: linear-gradient(#222 1px, transparent 1px), linear-gradient(90deg, #222 1px, transparent 1px); background-size: 40px 40px;"></div>
         
-        <!-- Canvas Wrapper -->
-        <div class="flex-1 overflow-auto flex justify-center items-start p-10 custom-scroll z-10" id="canvas-wrapper">
+        <!-- Wrapper com Scroll -->
+        <div class="w-full h-full overflow-y-auto flex justify-center items-start p-4 md:p-10 custom-scroll z-10">
             
-            <!-- MENU PREVIEW -->
-            <div id="preview-menu" class="format-menu bg-black text-white relative flex flex-col shadow-2xl overflow-hidden animate-in">
-                <!-- Top Accent -->
-                <div id="menu-accent-bar" class="w-full h-1.5 bg-brand-accent absolute top-0 left-0 z-20"></div>
+            <!-- ======================= -->
+            <!-- MODO CARDÁPIO (MENU) -->
+            <!-- ======================= -->
+            <div id="menu-container" class="relative w-full max-w-[550px] min-h-[850px] flex flex-col shadow-[0_0_80px_rgba(0,0,0,0.9)] text-white overflow-hidden" style="display: flex;">
                 
-                <div class="p-12 flex flex-col h-full relative z-10">
-                    <!-- Header -->
-                    <div class="text-center mb-10">
-                        <div class="relative w-32 h-32 mx-auto mb-6 group cursor-pointer" onclick="document.getElementById('logo-upload').click()">
-                            <div id="logo-glow" class="absolute inset-0 rounded-full blur-2xl opacity-30 bg-brand-accent transition duration-500"></div>
-                            <img id="preview-logo" src="https://via.placeholder.com/300x300/111/444?text=LOGO" class="w-full h-full object-cover rounded-full border-2 border-white/10 relative z-10 bg-black">
-                            <div class="absolute inset-0 z-20 flex items-center justify-center bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition backdrop-blur-sm">
-                                <i data-lucide="camera" class="text-white w-6 h-6"></i>
+                <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-transparent via-current to-transparent opacity-80 z-20" id="top-accent"></div>
+
+                <!-- Header -->
+                <div class="pt-12 pb-6 flex flex-col items-center relative z-10">
+                    <div class="relative group cursor-pointer mb-6">
+                        <div class="absolute inset-0 rounded-full bg-current opacity-30 blur-xl transition group-hover:opacity-50 duration-500 logo-glow"></div>
+                        <div class="w-36 h-36 rounded-full border-[3px] border-white/20 overflow-hidden relative z-10 bg-black shadow-2xl">
+                            <img id="logo-preview-menu" src="https://via.placeholder.com/300/000000/FFFFFF?text=LOGO" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition duration-500">
+                            <div class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300" onclick="document.getElementById('logo-input').click()">
+                                <i class="fas fa-camera text-white text-xl mb-1"></i>
+                                <span class="text-[8px] font-bold uppercase tracking-widest text-white">Alterar</span>
                             </div>
                         </div>
-                        <h1 id="preview-title" class="text-6xl font-bebas tracking-[0.1em] leading-none mb-2">ADEGA CLUB</h1>
-                        <p class="text-[10px] tracking-[0.6em] text-gray-500 uppercase font-bold">Premium Drinks & Lounge</p>
                     </div>
+                    <input type="file" id="logo-input" class="hidden" accept="image/*" onchange="app.handleLogoUpload(this)">
+                    
+                    <h1 id="title-preview" contenteditable="true" class="text-5xl md:text-6xl text-center font-bebas tracking-[0.15em] text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400 live-edit focus:outline-none focus:bg-white/5 px-4 rounded leading-none mt-2 drop-shadow-lg main-title">
+                        ADEGA CLUB
+                    </h1>
+                    <p class="text-[10px] tracking-[0.4em] uppercase text-gray-500 mt-2 font-bold">Premium Drinks & Lounge</p>
+                </div>
 
-                    <!-- Content (Dynamic) -->
-                    <div id="menu-content" class="space-y-8 flex-1"></div>
+                <!-- Conteúdo -->
+                <div id="menu-content" class="px-8 pb-16 flex-1 space-y-10">
+                    <!-- Injetado via JS -->
+                </div>
 
-                    <!-- Footer -->
-                    <div class="mt-auto pt-10 text-center opacity-30">
-                        <div class="flex items-center justify-center gap-4 mb-2">
-                            <div class="h-px bg-white w-12"></div>
-                            <i data-lucide="wine" class="w-3 h-3 text-white"></i>
-                            <div class="h-px bg-white w-12"></div>
-                        </div>
-                        <p class="text-[8px] tracking-widest uppercase">Se beber não dirija • Proibido para menores</p>
-                    </div>
+                <div class="mt-auto py-6 flex justify-center items-center opacity-30">
+                    <div class="h-[1px] w-12 bg-white"></div>
+                    <i class="fas fa-wine-glass text-[10px] mx-3 text-white"></i>
+                    <div class="h-[1px] w-12 bg-white"></div>
                 </div>
             </div>
 
-            <!-- PROMO PREVIEW (STORY) -->
-            <div id="preview-promo" class="format-story hidden shadow-2xl overflow-hidden animate-in relative group">
-                <!-- Injected via Template Engine -->
+            <!-- ======================= -->
+            <!-- MODO PROMOÇÃO (FLYER) -->
+            <!-- ======================= -->
+            <div id="promo-container" class="relative w-full max-w-[500px] aspect-[4/5] shadow-[0_0_80px_rgba(0,0,0,0.9)] text-white overflow-hidden hidden flex-col justify-between p-8 border border-white/5" style="display: none;">
+                
+                <!-- Background Decoration -->
+                <div class="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-current opacity-10 blur-[80px] promo-glow"></div>
+                <div class="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-current opacity-10 blur-[80px] promo-glow"></div>
+                
+                <!-- Promo Header -->
+                <div class="flex justify-between items-start z-10">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-full border border-white/20 overflow-hidden bg-black">
+                             <img id="logo-preview-promo" src="https://via.placeholder.com/300/000000/FFFFFF?text=LOGO" class="w-full h-full object-cover">
+                        </div>
+                        <div class="flex flex-col">
+                             <span class="text-lg font-bebas tracking-widest leading-none main-title">ADEGA CLUB</span>
+                             <span class="text-[8px] uppercase tracking-widest opacity-60">Oferta Especial</span>
+                        </div>
+                    </div>
+                    <div class="px-3 py-1 border border-white/20 rounded-full text-[10px] font-bold uppercase tracking-widest bg-white/5">
+                        <i class="fas fa-bolt text-yellow-500 mr-1"></i> Só Hoje
+                    </div>
+                </div>
+
+                <!-- Promo Content -->
+                <div class="flex-1 flex flex-col justify-center items-center z-10 text-center relative mt-4">
+                     <!-- Texto Fundo Decorativo -->
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-9xl font-bebas opacity-[0.03] whitespace-nowrap pointer-events-none">
+                        PROMOÇÃO
+                    </div>
+
+                    <h2 id="promo-headline" contenteditable="true" class="text-2xl font-bold uppercase tracking-[0.5em] text-yellow-500 mb-2 live-edit">OFFERTA RELÂMPAGO</h2>
+                    
+                    <h1 id="promo-item-name" contenteditable="true" class="text-5xl md:text-6xl font-bebas tracking-wide leading-none mb-4 live-edit">
+                        COMBO RED LABEL
+                    </h1>
+                    
+                    <div class="relative inline-block mt-4 mb-8">
+                        <span class="text-xl line-through text-gray-500 absolute -top-6 left-0 opacity-60">R$ 180,00</span>
+                        <div class="text-8xl font-bebas text-white leading-none tracking-tight flex items-start justify-center gap-2">
+                            <span class="text-3xl mt-2">R$</span>
+                            <span id="promo-item-price" contenteditable="true" class="live-edit">145,00</span>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 items-center justify-center opacity-80 text-xs tracking-widest">
+                        <span class="px-3 py-1 bg-white/10 rounded">GELADA</span>
+                        <span class="w-1 h-1 bg-gray-500 rounded-full"></span>
+                        <span class="px-3 py-1 bg-white/10 rounded">ENTREGA RÁPIDA</span>
+                    </div>
+                </div>
+
+                <!-- Promo Footer (QR) -->
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center justify-between z-10 mt-6 backdrop-blur-md">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] uppercase tracking-widest text-gray-400 mb-1">Peça agora pelo App</span>
+                        <span class="text-lg font-bold text-white flex items-center gap-2">
+                            <i class="fas fa-motorcycle text-yellow-500"></i> DELIVERY ON
+                        </span>
+                    </div>
+                    <div class="bg-white p-2 rounded-lg shadow-lg">
+                        <div id="qrcode" class="w-14 h-14"></div>
+                    </div>
+                </div>
+
             </div>
-
-        </div>
-
-        <!-- Zoom Controls -->
-        <div class="absolute bottom-6 right-6 flex gap-2 z-20">
-            <button onclick="app.zoom(-0.1)" class="w-8 h-8 rounded bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition"><i data-lucide="minus" class="w-4 h-4"></i></button>
-            <button onclick="app.zoom(0.1)" class="w-8 h-8 rounded bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition"><i data-lucide="plus" class="w-4 h-4"></i></button>
         </div>
     </main>
 
-    <!-- MODAL: PROMO WIZARD -->
-    <div id="modal-overlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center opacity-0 transition-opacity duration-300">
-        <div class="bg-[#111] border border-white/10 w-[90%] md:w-[700px] max-h-[85vh] rounded-2xl shadow-2xl flex flex-col transform scale-95 transition-transform duration-300" id="modal-panel">
-            
-            <!-- Modal Header -->
-            <div class="p-5 border-b border-white/5 flex justify-between items-center bg-[#151515] rounded-t-2xl">
-                <div>
-                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                        <i data-lucide="wand-2" class="w-4 h-4 text-brand-accent"></i> Seleção Inteligente
-                    </h3>
-                    <p class="text-[10px] text-gray-500 uppercase tracking-wider">Escolha os itens para o Flyer</p>
-                </div>
-                <button onclick="app.modal.close()" class="text-gray-500 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-
-            <!-- Modal Content -->
-            <div class="p-5 overflow-y-auto custom-scroll flex-1">
-                
-                <div class="flex gap-2 mb-4">
-                    <div class="relative flex-1">
-                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500"></i>
-                        <input id="modal-search" type="text" placeholder="Buscar produto..." class="w-full bg-black/30 border border-white/10 rounded-lg py-2 pl-9 pr-4 text-sm text-gray-300 focus:border-brand-accent outline-none">
-                    </div>
-                    <button onclick="app.modal.autoGen()" class="px-4 py-2 bg-brand-accent/10 text-brand-accent border border-brand-accent/20 rounded-lg text-xs font-bold uppercase hover:bg-brand-accent hover:text-black transition flex items-center gap-2">
-                        <i data-lucide="sparkles" class="w-3 h-3"></i> Auto-Sugerir
-                    </button>
-                </div>
-
-                <div id="modal-list" class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    <!-- Items injected here -->
-                </div>
-            </div>
-
-            <!-- Modal Footer -->
-            <div class="p-5 border-t border-white/5 bg-[#151515] rounded-b-2xl flex justify-between items-center">
-                <div class="text-xs text-gray-400">
-                    <span id="modal-count" class="text-white font-bold">0</span> itens selecionados
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="app.aiPrompt()" class="px-4 py-2 bg-white/5 text-gray-300 rounded-lg text-xs font-bold hover:bg-white/10 transition flex items-center gap-2 border border-white/5">
-                        <i data-lucide="copy" class="w-3 h-3"></i> Prompt IA Vídeo
-                    </button>
-                    <button onclick="app.modal.apply()" class="px-6 py-2 bg-brand-accent text-black rounded-lg text-xs font-bold uppercase hover:bg-yellow-400 transition shadow-glow flex items-center gap-2">
-                        Gerar Flyer <i data-lucide="arrow-right" class="w-3 h-3"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- TOAST NOTIFICATION CONTAINER -->
-    <div id="toast-container" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[60] flex flex-col gap-2 pointer-events-none"></div>
-
-    <!-- HIDDEN INPUTS -->
-    <input type="file" id="logo-upload" class="hidden" accept="image/*" onchange="app.handleLogo(this)">
-    <input type="file" id="json-upload" class="hidden" accept="application/json" onchange="app.loadStateJSON(this)">
-
-    <!-- LOGIC -->
+    <!-- Script App -->
     <script>
-        const app = {
-            state: {
-                mode: 'menu', // 'menu' | 'promo'
-                zoom: 1,
-                colors: { primary: '#EAB308', bg: '#000000', text: '#FFFFFF' },
-                menu: {
-                    title: 'ADEGA CLUB',
-                    sections: [
-                        { id: 1, type: 'grid', title: 'WHISKY IMPORTADO', items: [{name: 'Red Label', p1: '15,00', p2: '140,00'}, {name: 'Black Label', p1: '25,00', p2: '220,00'}, {name: 'Jack Daniels', p1: '22,00', p2: '190,00'}] },
-                        { id: 2, type: 'list', title: 'COMBOS & KITS', items: [{name: 'Combo Gin Tanqueray + 4 Tônicas', p: '280,00'}, {name: 'Combo Ciroc + 2 Sucos', p: '320,00'}] }
+        const colorThief = new ColorThief();
+
+        const defaultData = {
+            viewMode: 'menu', // 'menu' or 'promo'
+            colors: {
+                primary: '#D4AF37',
+                text: '#ffffff',
+                background: '#050505',
+                secondary: '#1a1a1a'
+            },
+            promo: {
+                headline: 'OFFERTA RELÂMPAGO',
+                selectedItem: { name: 'Combo Red Label', price: '145,00' },
+                qrLink: 'https://www.ifood.com.br'
+            },
+            sections: [
+                {
+                    id: 1,
+                    type: 'grid', 
+                    title: 'DOSES & COMBOS',
+                    headers: ['BEBIDA', 'DOSE', 'GARRAFA'],
+                    items: [
+                        { name: 'Red Label', price1: '15,00', price2: '140,00' },
+                        { name: 'Black Label', price1: '25,00', price2: '220,00' },
+                        { name: 'Jack Daniel\'s', price1: '22,00', price2: '200,00' },
+                        { name: 'Gold Label', price1: '40,00', price2: '450,00' },
+                        { name: 'Absolut', price1: '18,00', price2: '130,00' },
+                        { name: 'Ciroc', price1: '25,00', price2: '210,00' }
                     ]
                 },
-                promo: {
-                    template: 'night', // 'night', 'clean', 'flash'
-                    headline: 'OFERTA RELÂMPAGO',
-                    sub: 'VÁLIDO SOMENTE HOJE',
-                    item: { name: 'Combo Red Label', price: '140,00', oldPrice: '180,00' },
-                    qr: 'https://wa.me/55000000000',
-                    items: [] // For multi-item promos logic
+                {
+                    id: 2,
+                    type: 'list',
+                    title: 'ESPECIAIS DA CASA',
+                    items: [
+                        { name: 'Combo Gin Tanqueray + 4 Tônicas', price: '280,00' },
+                        { name: 'Combo Ciroc + 2 Sucos + Gelo', price: '320,00' },
+                        { name: 'Combo Red Label + Energético 2L', price: '190,00' },
+                        { name: 'Balde Cerveja Premium (6un)', price: '65,00' }
+                    ]
                 }
-            },
+            ]
+        };
 
-            // --- INIT ---
+        const app = {
+            data: JSON.parse(JSON.stringify(defaultData)),
+
             init() {
                 this.renderEditor();
                 this.renderPreview();
-                lucide.createIcons();
-                
-                // Color Picker Listener
-                const updateColors = () => { this.renderPreview(); };
+                this.generateQR();
             },
 
-            // --- UI ACTIONS ---
-            setMode(m) {
-                this.state.mode = m;
-                // Update Sidebar Tabs
-                document.getElementById('btn-mode-menu').className = `flex-1 py-4 text-[10px] font-bold uppercase tracking-widest transition hover:bg-white/5 ${m==='menu' ? 'text-brand-accent border-b-2 border-brand-accent' : 'text-gray-500 border-b-2 border-transparent'}`;
-                document.getElementById('btn-mode-promo').className = `flex-1 py-4 text-[10px] font-bold uppercase tracking-widest transition hover:bg-white/5 ${m==='promo' ? 'text-brand-accent border-b-2 border-brand-accent' : 'text-gray-500 border-b-2 border-transparent'}`;
+            // --- TAB SWITCHER ---
+            switchTab(mode) {
+                this.data.viewMode = mode;
                 
-                // Visibility
-                document.getElementById('preview-menu').style.display = m === 'menu' ? 'flex' : 'none';
-                document.getElementById('preview-promo').style.display = m === 'promo' ? 'flex' : 'none';
-                document.getElementById('menu-only-actions').style.display = m === 'menu' ? 'grid' : 'none';
-                document.getElementById('promo-only-actions').style.display = m === 'promo' ? 'block' : 'none';
+                const tabMenu = document.getElementById('tab-menu');
+                const tabPromo = document.getElementById('tab-promo');
+                const menuContainer = document.getElementById('menu-container');
+                const promoContainer = document.getElementById('promo-container');
+                const menuActions = document.getElementById('menu-actions');
+                const downloadText = document.getElementById('download-text');
+
+                if (mode === 'menu') {
+                    tabMenu.classList.add('active');
+                    tabPromo.classList.remove('active');
+                    menuContainer.style.display = 'flex';
+                    promoContainer.style.display = 'none';
+                    menuActions.style.visibility = 'visible';
+                    downloadText.innerText = 'Exportar Cardápio (PNG)';
+                } else {
+                    tabMenu.classList.remove('active');
+                    tabPromo.classList.add('active');
+                    menuContainer.style.display = 'none';
+                    promoContainer.style.display = 'flex';
+                    menuActions.style.visibility = 'hidden';
+                    downloadText.innerText = 'Exportar Flyer (PNG)';
+                    
+                    // Trigger resize for layout adjustment
+                    setTimeout(() => this.generateQR(), 100);
+                }
 
                 this.renderEditor();
-                this.renderPreview();
-                lucide.createIcons();
+                this.renderPreview(); // Ensure colors apply
             },
 
-            zoom(delta) {
-                this.state.zoom = Math.max(0.5, Math.min(2, this.state.zoom + delta));
-                const wrapper = document.querySelector('.format-menu:visible') || document.querySelector('.format-story:visible');
-                // Note: The structure requires applying zoom to the container or transforming elements
-                // Simple implementation:
-                const m = document.getElementById('preview-menu');
-                const p = document.getElementById('preview-promo');
-                m.style.transform = `scale(${this.state.zoom})`;
-                p.style.transform = `scale(${this.state.zoom})`;
-                m.style.marginTop = this.state.zoom < 1 ? '0px' : `${(this.state.zoom-1)*100}px`; 
-                // A proper zoom implementation would use a wrapper div with transform-origin top center.
-                // Keeping it simple for the single file request.
-            },
-
-            showToast(msg, type = 'success') {
-                const container = document.getElementById('toast-container');
-                const el = document.createElement('div');
-                const color = type === 'success' ? 'bg-green-500' : 'bg-blue-500';
-                el.className = `${color} text-black px-6 py-3 rounded-full font-bold text-xs shadow-lg transform translate-y-10 opacity-0 transition-all duration-300 flex items-center gap-2`;
-                el.innerHTML = `<i data-lucide="${type==='success'?'check-circle':'info'}" class="w-4 h-4"></i> ${msg}`;
-                container.appendChild(el);
-                lucide.createIcons();
-                
-                // Animate In
-                requestAnimationFrame(() => {
-                    el.classList.remove('translate-y-10', 'opacity-0');
-                });
-
-                // Remove
-                setTimeout(() => {
-                    el.classList.add('opacity-0', 'translate-y-2');
-                    setTimeout(() => el.remove(), 300);
-                }, 3000);
-            },
-
-            // --- CORE LOGIC: EDITOR RENDER ---
-            renderEditor() {
-                const container = document.getElementById('editor-scroll');
-                container.innerHTML = '';
-                const c = this.state.colors;
-
-                // 1. Aesthetics Panel
-                const aestheticsHtml = `
-                    <div class="glass-panel p-4 rounded-xl mb-6">
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Identidade Visual</span>
-                            <i data-lucide="palette" class="w-3 h-3 text-gray-600"></i>
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <div class="flex flex-col items-center gap-1 group">
-                                <input type="color" value="${c.primary}" onchange="app.updateColor('primary', this.value)" class="transition transform group-hover:scale-110">
-                                <span class="text-[9px] text-gray-500">COR</span>
-                            </div>
-                            <div class="flex flex-col items-center gap-1 group">
-                                <input type="color" value="${c.bg}" onchange="app.updateColor('bg', this.value)" class="transition transform group-hover:scale-110">
-                                <span class="text-[9px] text-gray-500">FUNDO</span>
-                            </div>
-                            <div class="flex-1">
-                                <label class="text-[9px] text-gray-500 block mb-1">TÍTULO PRINCIPAL</label>
-                                <input type="text" value="${this.state.menu.title}" oninput="app.updateTitle(this.value)" class="input-dark w-full px-3 py-2 rounded text-white font-bebas tracking-wide text-lg">
-                            </div>
-                        </div>
-                    </div>
-                `;
-                container.innerHTML += aestheticsHtml;
-
-                if (this.state.mode === 'menu') {
-                    // MENU EDITOR
-                    this.state.menu.sections.forEach((sec, sIdx) => {
-                        let itemsHtml = sec.items.map((it, iIdx) => `
-                            <div class="flex gap-2 mb-2 items-center group/item animate-in" style="animation-delay: ${iIdx*50}ms">
-                                <div class="cursor-move text-gray-700 hover:text-gray-500"><i data-lucide="grip-vertical" class="w-3 h-3"></i></div>
-                                <input type="text" value="${it.name}" oninput="app.editItem(${sec.id}, ${iIdx}, 'name', this.value)" class="input-dark flex-1 px-2 py-1.5 rounded text-xs text-gray-300">
-                                ${ sec.type === 'grid' 
-                                    ? `<input type="text" value="${it.p1}" oninput="app.editItem(${sec.id}, ${iIdx}, 'p1', this.value)" class="input-dark w-12 px-1 py-1.5 rounded text-xs text-center font-mono">
-                                       <input type="text" value="${it.p2}" oninput="app.editItem(${sec.id}, ${iIdx}, 'p2', this.value)" class="input-dark w-12 px-1 py-1.5 rounded text-xs text-center font-mono">`
-                                    : `<input type="text" value="${it.p}" oninput="app.editItem(${sec.id}, ${iIdx}, 'p', this.value)" class="input-dark w-16 px-1 py-1.5 rounded text-xs text-center font-mono">`
-                                }
-                                <button onclick="app.deleteItem(${sec.id}, ${iIdx})" class="text-red-900 hover:text-red-500 transition opacity-0 group-hover/item:opacity-100"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
-                            </div>
-                        `).join('');
-
-                        container.innerHTML += `
-                            <div class="glass-panel p-4 rounded-xl mb-4 group/sec transition hover:border-white/10 relative">
-                                <div class="absolute right-4 top-4 opacity-0 group-hover/sec:opacity-100 transition">
-                                    <button onclick="app.deleteSection(${sec.id})" class="text-red-500 hover:bg-red-500/10 p-1 rounded"><i data-lucide="trash" class="w-3 h-3"></i></button>
-                                </div>
-                                <input type="text" value="${sec.title}" oninput="app.editSecTitle(${sec.id}, this.value)" class="bg-transparent text-brand-accent font-bold uppercase text-sm tracking-widest mb-4 outline-none w-[80%]">
-                                <div class="space-y-1">${itemsHtml}</div>
-                                <button onclick="app.addItem(${sec.id})" class="mt-3 w-full py-2 border border-dashed border-white/10 rounded text-[10px] text-gray-500 hover:text-white hover:border-white/20 transition flex items-center justify-center gap-1">
-                                    <i data-lucide="plus" class="w-3 h-3"></i> Adicionar Item
-                                </button>
-                            </div>
-                        `;
-                    });
-                } else {
-                    // PROMO EDITOR
-                    const p = this.state.promo;
-                    container.innerHTML += `
-                        <div class="glass-panel p-1 rounded-lg flex mb-6">
-                            ${['night', 'clean', 'flash'].map(t => `
-                                <button onclick="app.setPromoTemplate('${t}')" class="flex-1 py-2 text-[10px] font-bold uppercase rounded transition ${p.template === t ? 'bg-brand-accent text-black shadow-lg' : 'text-gray-500 hover:text-white'}">
-                                    ${t}
-                                </button>
-                            `).join('')}
-                        </div>
-
-                        <div class="glass-panel p-4 rounded-xl space-y-4">
-                            <div>
-                                <label class="text-[9px] text-gray-500 font-bold uppercase block mb-1">Headline (Chamada)</label>
-                                <input type="text" value="${p.headline}" oninput="app.updatePromo('headline', this.value)" class="input-dark w-full px-3 py-2 rounded text-sm text-white">
-                            </div>
-                             <div>
-                                <label class="text-[9px] text-gray-500 font-bold uppercase block mb-1">Sub-título</label>
-                                <input type="text" value="${p.sub}" oninput="app.updatePromo('sub', this.value)" class="input-dark w-full px-3 py-2 rounded text-sm text-white">
-                            </div>
-                            <div class="pt-2 border-t border-white/5">
-                                <p class="text-[9px] text-brand-accent mb-2 uppercase tracking-wider">Item Principal</p>
-                                <input type="text" value="${p.item.name}" oninput="app.updatePromoItem('name', this.value)" class="input-dark w-full px-3 py-2 rounded text-sm text-white mb-2 font-bold">
-                                <div class="flex gap-2">
-                                    <div class="flex-1">
-                                        <label class="text-[8px] text-gray-500">PREÇO DE</label>
-                                        <input type="text" value="${p.item.oldPrice}" oninput="app.updatePromoItem('oldPrice', this.value)" class="input-dark w-full px-2 py-1 rounded text-xs">
-                                    </div>
-                                    <div class="flex-1">
-                                        <label class="text-[8px] text-gray-500">PREÇO POR</label>
-                                        <input type="text" value="${p.item.price}" oninput="app.updatePromoItem('price', this.value)" class="input-dark w-full px-2 py-1 rounded text-xs text-brand-accent font-bold">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="pt-2 border-t border-white/5">
-                                <label class="text-[9px] text-gray-500 font-bold uppercase block mb-1">Link QR Code</label>
-                                <input type="text" value="${p.qr}" oninput="app.updatePromo('qr', this.value)" class="input-dark w-full px-3 py-2 rounded text-xs text-gray-400 font-mono">
-                            </div>
-                        </div>
-                    `;
-                }
-            },
-
-            // --- CORE LOGIC: PREVIEW RENDER ---
-            renderPreview() {
-                const c = this.state.colors;
-                const menu = document.getElementById('preview-menu');
-                const promo = document.getElementById('preview-promo');
-
-                // Apply Colors
-                menu.style.backgroundColor = c.bg;
-                menu.style.color = c.text;
-                document.getElementById('menu-accent-bar').style.backgroundColor = c.primary;
-                document.getElementById('preview-title').innerText = this.state.menu.title;
-                document.getElementById('logo-glow').style.backgroundColor = c.primary;
-
-                // Render Menu Content
-                const menuContent = document.getElementById('menu-content');
-                menuContent.innerHTML = '';
-                this.state.menu.sections.forEach(sec => {
-                    let itemsHtml = '';
-                    if (sec.type === 'grid') {
-                        itemsHtml = sec.items.map(it => `
-                            <div class="flex items-end justify-between py-1 border-b border-white/5 group">
-                                <span class="text-sm font-semibold uppercase tracking-tight opacity-90">${it.name}</span>
-                                <div class="flex gap-6">
-                                    <span class="w-12 text-right font-bebas text-xl leading-none" style="color:${c.primary}">${it.p1}</span>
-                                    <span class="w-12 text-right font-bebas text-xl leading-none" style="color:${c.primary}">${it.p2}</span>
-                                </div>
-                            </div>
-                        `).join('');
-                        menuContent.innerHTML += `
-                            <div>
-                                <div class="flex justify-between items-center mb-4 border-l-4 pl-3" style="border-color:${c.primary}">
-                                    <h2 class="text-2xl font-bebas tracking-widest leading-none">${sec.title}</h2>
-                                    <div class="flex gap-6 text-[9px] font-bold text-gray-500 uppercase tracking-widest mr-1">
-                                        <span class="w-12 text-right">Dose</span>
-                                        <span class="w-12 text-right">Garrafa</span>
-                                    </div>
-                                </div>
-                                <div class="space-y-1">${itemsHtml}</div>
-                            </div>`;
-                    } else {
-                        itemsHtml = sec.items.map(it => `
-                            <div class="flex items-baseline justify-between mb-2 group">
-                                <span class="text-base font-medium uppercase opacity-90">${it.name}</span>
-                                <div class="price-leader"></div>
-                                <span class="font-bebas text-2xl leading-none" style="color:${c.primary}">${it.p}</span>
-                            </div>
-                        `).join('');
-                        menuContent.innerHTML += `
-                            <div>
-                                <h2 class="text-2xl font-bebas tracking-widest leading-none mb-4 text-center pb-2 border-b border-white/10" style="color:${c.primary}">${sec.title}</h2>
-                                <div>${itemsHtml}</div>
-                            </div>`;
-                    }
-                });
-
-                // Render Promo
-                this.renderPromoTemplate();
-            },
-
-            renderPromoTemplate() {
-                const container = document.getElementById('preview-promo');
-                const p = this.state.promo;
-                const c = this.state.colors;
-                const logoSrc = document.getElementById('preview-logo').src;
-                let html = '';
-
-                if (p.template === 'night') {
-                    html = `
-                        <div class="w-full h-full bg-[#050505] relative flex flex-col p-10 text-white">
-                            <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
-                            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[12rem] font-black text-white/5 pointer-events-none select-none font-bebas transform -rotate-12">PROMO</div>
-                            
-                            <div class="relative z-10 flex justify-between items-center mb-10">
-                                <img src="${logoSrc}" class="w-14 h-14 rounded-full border border-white/20 shadow-lg">
-                                <div class="text-right">
-                                    <div class="text-xl font-bebas tracking-widest">${this.state.menu.title}</div>
-                                    <div class="text-[8px] uppercase tracking-[0.3em] text-gray-500">Exclusive Offer</div>
-                                </div>
-                            </div>
-
-                            <div class="relative z-10 text-center flex-1 flex flex-col justify-center">
-                                <h3 class="text-2xl font-black italic text-brand-accent mb-2" style="color:${c.primary}">${p.headline}</h3>
-                                <h2 class="text-5xl font-bebas leading-[0.9] mb-8 text-white">${p.item.name}</h2>
-                                <div class="inline-block bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-glow" style="--tw-shadow-color: ${c.primary}33">
-                                    <span class="block text-lg text-gray-500 line-through mb-1">R$ ${p.item.oldPrice}</span>
-                                    <span class="block text-8xl font-bebas leading-none neon-text" style="color:${c.primary}">${p.item.price}</span>
-                                </div>
-                                <p class="mt-6 text-xs uppercase tracking-widest text-gray-400 font-bold">${p.sub}</p>
-                            </div>
-
-                            <div class="relative z-10 mt-auto flex items-center justify-between bg-[#111] p-4 rounded-xl border border-white/10">
-                                <div>
-                                    <div class="text-white font-bold text-xs uppercase">Peça Agora</div>
-                                    <div class="text-[8px] text-gray-500">Delivery via WhatsApp/App</div>
-                                </div>
-                                <div id="promo-qr-target" class="bg-white p-1 rounded"></div>
-                            </div>
-                        </div>
-                    `;
-                } else if (p.template === 'clean') {
-                    html = `
-                        <div class="w-full h-full bg-[#F5F5F5] text-[#111] p-8 flex flex-col">
-                            <div class="border-2 border-[#111] h-full p-6 flex flex-col relative">
-                                <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#F5F5F5] px-4">
-                                    <img src="${logoSrc}" class="w-12 h-12 rounded-full border border-[#111] grayscale">
-                                </div>
-                                
-                                <div class="mt-10 text-center flex-1">
-                                    <p class="font-serif-display italic text-2xl mb-6 opacity-80">${this.state.menu.title}</p>
-                                    <h2 class="text-5xl font-inter font-black uppercase tracking-tighter mb-2">${p.item.name}</h2>
-                                    <div class="w-12 h-1 bg-[#111] mx-auto my-6"></div>
-                                    <p class="text-sm font-bold uppercase tracking-widest mb-8 text-gray-500">${p.headline}</p>
-                                    <div class="flex items-center justify-center gap-4">
-                                        <span class="text-2xl line-through text-gray-400">R$ ${p.item.oldPrice}</span>
-                                        <span class="text-7xl font-inter font-black">R$ ${p.item.price}</span>
-                                    </div>
-                                </div>
-
-                                <div class="text-center mt-auto">
-                                    <div id="promo-qr-target" class="mx-auto w-[60px] h-[60px] mb-2"></div>
-                                    <p class="text-[9px] font-bold uppercase tracking-[0.2em]">Escaneie para comprar</p>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    // FLASH
-                    html = `
-                        <div class="w-full h-full bg-brand-accent text-black p-4 flex flex-col" style="background-color:${c.primary}">
-                            <div class="bg-black text-white p-4 rounded-xl text-center shadow-2xl transform -rotate-1 mt-4">
-                                <h2 class="text-4xl font-black uppercase italic tracking-tighter">${p.headline}</h2>
-                            </div>
-                            
-                            <div class="flex-1 flex flex-col items-center justify-center relative">
-                                <div class="absolute inset-0 flex items-center justify-center opacity-10">
-                                    <i data-lucide="zap" class="w-64 h-64 text-black"></i>
-                                </div>
-                                <h1 class="text-5xl font-bebas text-center leading-none mb-4 z-10 px-4">${p.item.name}</h1>
-                                <div class="bg-white p-8 rounded-full shadow-[0_0_40px_rgba(0,0,0,0.3)] w-64 h-64 flex flex-col items-center justify-center z-10 border-8 border-black">
-                                    <span class="text-lg font-bold line-through opacity-40">R$ ${p.item.oldPrice}</span>
-                                    <span class="text-2xl font-black">POR APENAS</span>
-                                    <span class="text-6xl font-black tracking-tighter">R$ ${p.item.price}</span>
-                                </div>
-                            </div>
-
-                            <div class="bg-black text-white p-6 rounded-t-3xl text-center">
-                                <p class="text-sm font-bold uppercase mb-3">${p.sub}</p>
-                                <div class="bg-white p-2 inline-block rounded-lg" id="promo-qr-target"></div>
-                            </div>
-                        </div>
-                    `;
-                }
-
-                container.innerHTML = html;
-                setTimeout(() => this.generateQR(), 50);
-                lucide.createIcons();
-            },
-
+            // --- QR CODE GENERATOR ---
             generateQR() {
-                const target = document.getElementById('promo-qr-target');
-                if (target) {
-                    target.innerHTML = '';
-                    new QRCode(target, {
-                        text: this.state.promo.qr,
-                        width: 50,
-                        height: 50,
+                const container = document.getElementById('qrcode');
+                container.innerHTML = '';
+                try {
+                    new QRCode(container, {
+                        text: this.data.promo.qrLink,
+                        width: 56,
+                        height: 56,
                         colorDark : "#000000",
                         colorLight : "#ffffff",
                         correctLevel : QRCode.CorrectLevel.L
                     });
-                }
+                } catch(e) { console.log('QR Lib not loaded yet'); }
             },
 
-            // --- DATA MANIPULATION ---
-            updateColor(k, v) { this.state.colors[k] = v; this.renderPreview(); },
-            updateTitle(v) { this.state.menu.title = v; this.renderPreview(); },
-            updatePromo(k, v) { this.state.promo[k] = v; this.renderPreview(); },
-            updatePromoItem(k, v) { this.state.promo.item[k] = v; this.renderPreview(); },
-            setPromoTemplate(t) { this.state.promo.template = t; this.renderEditor(); this.renderPreview(); },
-            
-            editItem(sid, iid, f, v) { this.state.menu.sections.find(s=>s.id===sid).items[iid][f] = v; this.renderPreview(); },
-            editSecTitle(sid, v) { this.state.menu.sections.find(s=>s.id===sid).title = v; this.renderPreview(); },
-            addItem(sid) { 
-                const s = this.state.menu.sections.find(s=>s.id===sid);
-                s.items.push(s.type==='grid' ? {name:'Novo', p1:'0', p2:'0'} : {name:'Novo', p:'0'});
-                this.renderEditor(); this.renderPreview();
-                lucide.createIcons();
-            },
-            deleteItem(sid, iid) {
-                this.state.menu.sections.find(s=>s.id===sid).items.splice(iid, 1);
-                this.renderEditor(); this.renderPreview();
-                lucide.createIcons();
-            },
-            addSection(type) {
-                this.state.menu.sections.push({id: Date.now(), type, title:'NOVA SEÇÃO', items:[]});
-                this.renderEditor(); this.renderPreview();
-                lucide.createIcons();
-            },
-            deleteSection(sid) {
-                if(confirm('Tem certeza?')) {
-                    this.state.menu.sections = this.state.menu.sections.filter(s=>s.id!==sid);
-                    this.renderEditor(); this.renderPreview();
-                    lucide.createIcons();
-                }
+            updateQR(value) {
+                this.data.promo.qrLink = value;
+                this.generateQR();
             },
 
-            handleLogo(input) {
+            // --- PROMO LOGIC ---
+            selectPromoItem(value) {
+                // Formato value: "sectionIndex|itemIndex"
+                const [sIdx, iIdx] = value.split('|');
+                const item = this.data.sections[sIdx].items[iIdx];
+                
+                this.data.promo.selectedItem.name = item.name;
+                
+                // Pega o maior preço se tiver dois, ou o único preço
+                if(item.price) {
+                    this.data.promo.selectedItem.price = item.price;
+                } else {
+                    // Logica simples: pega o preço da garrafa (price2)
+                    this.data.promo.selectedItem.price = item.price2 || item.price1;
+                }
+
+                // Update DOM elements directly for smoothness
+                document.getElementById('promo-item-name').innerText = this.data.promo.selectedItem.name;
+                document.getElementById('promo-item-price').innerText = this.data.promo.selectedItem.price;
+            },
+
+            // --- CORE FUNCTIONALITIES ---
+            applyColors() {
+                const c = this.data.colors;
+                const menuC = document.getElementById('menu-container');
+                const promoC = document.getElementById('promo-container');
+                const titles = document.querySelectorAll('.main-title');
+                const glows = document.querySelectorAll('.logo-glow');
+                const promoGlows = document.querySelectorAll('.promo-glow');
+                const topAccent = document.getElementById('top-accent');
+                const promoHeadline = document.getElementById('promo-headline');
+
+                // Apply to Menu
+                menuC.style.backgroundColor = c.background;
+                menuC.style.color = c.text;
+                
+                // Apply to Promo
+                promoC.style.backgroundColor = c.background;
+                promoC.style.color = c.text;
+                promoC.style.borderColor = `${c.primary}33`; // 20% opacity
+
+                // Accents
+                menuC.style.color = c.primary; 
+                promoC.style.color = c.primary;
+
+                titles.forEach(t => t.style.textShadow = `0 0 20px ${c.primary}40`);
+                glows.forEach(g => {
+                    g.style.backgroundColor = c.primary;
+                    g.style.boxShadow = `0 0 60px ${c.primary}60`;
+                });
+                promoGlows.forEach(g => g.style.backgroundColor = c.primary);
+
+                if(topAccent) topAccent.style.backgroundImage = `linear-gradient(90deg, transparent, ${c.primary}, transparent)`;
+                if(promoHeadline) promoHeadline.style.color = c.primary;
+            },
+
+            handleLogoUpload(input) {
                 if (input.files && input.files[0]) {
                     const reader = new FileReader();
                     reader.onload = (e) => {
-                        const img = document.getElementById('preview-logo');
-                        img.src = e.target.result;
-                        img.onload = () => {
-                            const color = new ColorThief().getColor(img);
-                            const hex = "#" + ((1 << 24) + (color[0] << 16) + (color[1] << 8) + color[2]).toString(16).slice(1);
-                            this.updateColor('primary', hex);
-                            this.renderEditor(); // Refresh color picker
-                            this.showToast('Paleta de cores atualizada pelo logo!');
-                        }
+                        const imgMenu = document.getElementById('logo-preview-menu');
+                        const imgPromo = document.getElementById('logo-preview-promo');
+                        imgMenu.src = e.target.result;
+                        imgPromo.src = e.target.result;
+                        
+                        imgMenu.onload = () => {
+                            try {
+                                const dominantColor = colorThief.getColor(imgMenu);
+                                const rgbToHex = (r, g, b) => '#' + [r, g, b].map(x => {
+                                    const hex = x.toString(16);
+                                    return hex.length === 1 ? '0' + hex : hex;
+                                }).join('');
+
+                                this.data.colors.primary = rgbToHex(...dominantColor);
+                                this.renderEditor();
+                                this.renderPreview();
+                            } catch (err) { console.warn(err); }
+                        };
                     };
                     reader.readAsDataURL(input.files[0]);
                 }
             },
 
-            // --- NEW FEATURES (PATCH INTEGRATION) ---
-            
-            modal: {
-                selectedItems: new Set(),
-                
-                open() {
-                    const overlay = document.getElementById('modal-overlay');
-                    const panel = document.getElementById('modal-panel');
-                    overlay.classList.remove('hidden');
-                    overlay.classList.add('flex');
-                    
-                    // Animations
-                    requestAnimationFrame(() => {
-                        overlay.classList.remove('opacity-0');
-                        panel.classList.remove('scale-95');
-                        panel.classList.add('scale-100');
-                    });
-
-                    this.renderList();
-                },
-
-                close() {
-                    const overlay = document.getElementById('modal-overlay');
-                    const panel = document.getElementById('modal-panel');
-                    overlay.classList.add('opacity-0');
-                    panel.classList.remove('scale-100');
-                    panel.classList.add('scale-95');
-                    setTimeout(() => {
-                        overlay.classList.add('hidden');
-                        overlay.classList.remove('flex');
-                    }, 300);
-                },
-
-                renderList(filter = '') {
-                    const listEl = document.getElementById('modal-list');
-                    listEl.innerHTML = '';
-                    let allItems = [];
-                    
-                    app.state.menu.sections.forEach(s => {
-                        s.items.forEach(i => {
-                            allItems.push({...i, section: s.title, price: i.p || i.p1 || '0'});
-                        });
-                    });
-
-                    if(filter) {
-                        allItems = allItems.filter(i => i.name.toLowerCase().includes(filter.toLowerCase()));
-                    }
-
-                    allItems.forEach((item, idx) => {
-                        const isSelected = this.selectedItems.has(item.name);
-                        const el = document.createElement('div');
-                        el.className = `p-3 rounded-lg border ${isSelected ? 'border-brand-accent bg-brand-accent/10' : 'border-white/5 bg-white/5'} cursor-pointer hover:bg-white/10 transition flex items-center justify-between group`;
-                        el.onclick = () => this.toggleItem(item.name, item.price);
-                        el.innerHTML = `
-                            <div>
-                                <div class="font-bold text-sm text-gray-200">${item.name}</div>
-                                <div class="text-[10px] text-gray-500 uppercase">${item.section}</div>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-brand-accent font-mono text-xs">${item.price}</div>
-                                <div class="w-4 h-4 rounded border border-white/20 ml-auto mt-1 flex items-center justify-center ${isSelected?'bg-brand-accent border-brand-accent':''}">
-                                    ${isSelected ? '<i data-lucide="check" class="w-3 h-3 text-black"></i>' : ''}
-                                </div>
-                            </div>
-                        `;
-                        listEl.appendChild(el);
-                    });
-                    lucide.createIcons();
-                },
-
-                toggleItem(name, price) {
-                    if (this.selectedItems.has(name)) {
-                        this.selectedItems.delete(name);
-                    } else {
-                        // For this version, we select one main item, but logic allows multiselect
-                        this.selectedItems.clear(); // Single select behavior for simplicity in v6
-                        this.selectedItems.add(name);
-                        app.state.promo.item.name = name;
-                        app.state.promo.item.price = price;
-                    }
-                    this.renderList();
-                    document.getElementById('modal-count').innerText = this.selectedItems.size;
-                },
-
-                autoGen() {
-                    const keywords = ['combo', 'kit', 'balde', 'promo', 'pack'];
-                    let found = false;
-                    
-                    // Logic: Find first item matching keywords
-                    app.state.menu.sections.forEach(s => {
-                        if(found) return;
-                        s.items.forEach(i => {
-                            if(found) return;
-                            if (keywords.some(k => i.name.toLowerCase().includes(k))) {
-                                this.toggleItem(i.name, i.p || i.p1);
-                                found = true;
-                                app.showToast('Item promocional encontrado!', 'success');
-                            }
-                        });
-                    });
-
-                    if(!found) app.showToast('Nenhum combo óbvio encontrado. Selecione manualmente.', 'info');
-                },
-
-                apply() {
-                    if(this.selectedItems.size === 0) return app.showToast('Selecione ao menos 1 item', 'info');
-                    app.renderEditor();
-                    app.renderPreview();
-                    app.showToast('Flyer atualizado com sucesso!');
-                    this.close();
+            // --- CRUD ---
+            changeColor(key, value) {
+                this.data.colors[key] = value;
+                this.renderPreview();
+            },
+            updateItem(sectionId, idx, field, value) {
+                const section = this.data.sections.find(s => s.id === sectionId);
+                if (section) {
+                    section.items[idx][field] = value;
+                    this.renderPreview();
+                }
+            },
+            addItem(sectionId) {
+                const section = this.data.sections.find(s => s.id === sectionId);
+                if (section) {
+                    const newItem = section.type === 'list' 
+                        ? { name: 'Nova Bebida', price: '00,00' }
+                        : { name: 'Nova Bebida', price1: '00,00', price2: '00,00' };
+                    section.items.push(newItem);
+                    this.renderEditor();
+                    this.renderPreview();
+                }
+            },
+            deleteItem(sectionId, idx) {
+                const section = this.data.sections.find(s => s.id === sectionId);
+                if (section) {
+                    section.items.splice(idx, 1);
+                    this.renderEditor();
+                    this.renderPreview();
+                }
+            },
+            updateSectionTitle(sectionId, value) {
+                const section = this.data.sections.find(s => s.id === sectionId);
+                if (section) { section.title = value; this.renderPreview(); }
+            },
+            updateSectionHeader(sectionId, idx, value) {
+                const section = this.data.sections.find(s => s.id === sectionId);
+                if (section) { section.headers[idx] = value; this.renderPreview(); }
+            },
+            addSection(type) {
+                const newId = Date.now();
+                const newSection = type === 'list' 
+                    ? { id: newId, type: 'list', title: 'NOVA SEÇÃO', items: [{ name: 'Exemplo', price: '00,00' }] }
+                    : { id: newId, type: 'grid', title: 'TABELA DE PREÇOS', headers: ['ITEM', 'P', 'G'], items: [{ name: 'Exemplo', price1: '10', price2: '20' }] };
+                this.data.sections.push(newSection);
+                this.renderEditor();
+                this.renderPreview();
+            },
+            deleteSection(sectionId) {
+                if(confirm("Remover esta seção?")) {
+                    this.data.sections = this.data.sections.filter(s => s.id !== sectionId);
+                    this.renderEditor();
+                    this.renderPreview();
                 }
             },
 
-            // Search Listener
-            setupListeners() {
-                document.getElementById('modal-search').addEventListener('input', (e) => {
-                    this.modal.renderList(e.target.value);
-                });
+            // --- RENDERS ---
+            renderEditor() {
+                const container = document.getElementById('editor-container');
+                container.innerHTML = '';
+
+                // Colors Panel (Always Visible)
+                const colorsHtml = `
+                    <div class="glass-panel p-4 rounded-xl mb-6">
+                        <h3 class="text-[10px] uppercase font-bold text-gray-400 mb-3 tracking-widest">Estética & Cores</h3>
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="flex flex-col items-center">
+                                <input type="color" value="${this.data.colors.primary}" onchange="app.changeColor('primary', this.value)" title="Cor Destaque">
+                                <span class="text-[9px] text-gray-500 mt-1">NEON</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <input type="color" value="${this.data.colors.text}" onchange="app.changeColor('text', this.value)" title="Cor Texto">
+                                <span class="text-[9px] text-gray-500 mt-1">TEXTO</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <input type="color" value="${this.data.colors.background}" onchange="app.changeColor('background', this.value)" title="Cor Fundo">
+                                <span class="text-[9px] text-gray-500 mt-1">FUNDO</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += colorsHtml;
+
+                // IF MENU MODE
+                if (this.data.viewMode === 'menu') {
+                    this.data.sections.forEach(section => {
+                        let itemsHtml = '';
+                        section.items.forEach((item, idx) => {
+                            if (section.type === 'list') {
+                                itemsHtml += `
+                                    <div class="flex gap-2 mb-2 items-center group/item">
+                                        <input type="text" value="${item.name}" oninput="app.updateItem(${section.id}, ${idx}, 'name', this.value)" class="bg-white/5 text-gray-200 text-xs p-2 rounded border border-transparent focus:border-yellow-500/50 outline-none flex-1 transition">
+                                        <input type="text" value="${item.price}" oninput="app.updateItem(${section.id}, ${idx}, 'price', this.value)" class="bg-white/5 text-gray-200 text-xs p-2 rounded border border-transparent focus:border-yellow-500/50 outline-none w-16 text-right transition font-mono">
+                                        <button onclick="app.deleteItem(${section.id}, ${idx})" class="text-gray-600 hover:text-red-500 w-6 opacity-0 group-hover/item:opacity-100 transition"><i class="fas fa-times"></i></button>
+                                    </div>`;
+                            } else {
+                                itemsHtml += `
+                                    <div class="flex gap-2 mb-2 items-center group/item">
+                                        <input type="text" value="${item.name}" oninput="app.updateItem(${section.id}, ${idx}, 'name', this.value)" class="bg-white/5 text-gray-200 text-xs p-2 rounded border border-transparent focus:border-yellow-500/50 outline-none flex-1 transition">
+                                        <input type="text" value="${item.price1}" oninput="app.updateItem(${section.id}, ${idx}, 'price1', this.value)" class="bg-white/5 text-gray-200 text-xs p-2 rounded border border-transparent focus:border-yellow-500/50 outline-none w-14 text-center transition font-mono">
+                                        <input type="text" value="${item.price2}" oninput="app.updateItem(${section.id}, ${idx}, 'price2', this.value)" class="bg-white/5 text-gray-200 text-xs p-2 rounded border border-transparent focus:border-yellow-500/50 outline-none w-14 text-center transition font-mono">
+                                        <button onclick="app.deleteItem(${section.id}, ${idx})" class="text-gray-600 hover:text-red-500 w-6 opacity-0 group-hover/item:opacity-100 transition"><i class="fas fa-times"></i></button>
+                                    </div>`;
+                            }
+                        });
+
+                        const sectionHtml = `
+                            <div class="bg-panel-light/50 border border-white/5 p-4 rounded-xl mb-6 relative group hover:border-white/10 transition">
+                                <div class="absolute -right-2 -top-2 opacity-0 group-hover:opacity-100 transition z-10">
+                                    <button onclick="app.deleteSection(${section.id})" class="bg-red-500/20 hover:bg-red-500 text-red-500 hover:text-white p-2 rounded-full w-8 h-8 flex items-center justify-center backdrop-blur-sm transition"><i class="fas fa-trash-alt text-xs"></i></button>
+                                </div>
+                                <div class="mb-4">
+                                    <input type="text" value="${section.title}" oninput="app.updateSectionTitle(${section.id}, this.value)" class="w-full bg-transparent text-lg font-bebas tracking-wide text-white border-b border-transparent focus:border-yellow-500/50 outline-none placeholder-gray-600 transition">
+                                </div>
+                                <div class="space-y-1">${itemsHtml}</div>
+                                <button onclick="app.addItem(${section.id})" class="mt-4 w-full py-2 rounded border border-dashed border-white/10 text-xs text-gray-500 hover:text-white hover:border-white/30 hover:bg-white/5 transition flex items-center justify-center gap-2"><i class="fas fa-plus"></i> Adicionar Item</button>
+                            </div>`;
+                        container.innerHTML += sectionHtml;
+                    });
+                } 
+                // IF PROMO MODE
+                else {
+                    // Build Select Options
+                    let optionsHtml = '<option value="">-- Selecionar do Cardápio --</option>';
+                    this.data.sections.forEach((sec, sIdx) => {
+                        sec.items.forEach((item, iIdx) => {
+                            optionsHtml += `<option value="${sIdx}|${iIdx}">${item.name}</option>`;
+                        });
+                    });
+
+                    const promoEditorHtml = `
+                        <div class="bg-panel-light/50 border border-white/5 p-4 rounded-xl mb-6">
+                            <h2 class="text-sm font-bold text-yellow-500 mb-4 uppercase tracking-widest"><i class="fas fa-magic mr-2"></i>Configuração do Flyer</h2>
+                            
+                            <div class="mb-4">
+                                <label class="text-[10px] uppercase text-gray-500 font-bold block mb-1">Produto em Destaque</label>
+                                <select onchange="app.selectPromoItem(this.value)" class="w-full bg-black/50 border border-white/10 text-white text-xs p-3 rounded focus:border-yellow-500 outline-none">
+                                    ${optionsHtml}
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="text-[10px] uppercase text-gray-500 font-bold block mb-1">Headline (Chamada)</label>
+                                <input type="text" value="${this.data.promo.headline}" oninput="document.getElementById('promo-headline').innerText = this.value" class="w-full bg-black/50 border border-white/10 text-white text-xs p-3 rounded focus:border-yellow-500 outline-none">
+                            </div>
+
+                             <div class="mb-4">
+                                <label class="text-[10px] uppercase text-gray-500 font-bold block mb-1">Link do Delivery (QR Code)</label>
+                                <input type="text" value="${this.data.promo.qrLink}" oninput="app.updateQR(this.value)" placeholder="https://..." class="w-full bg-black/50 border border-white/10 text-white text-xs p-3 rounded focus:border-yellow-500 outline-none">
+                                <p class="text-[9px] text-gray-500 mt-1">Cole o link do seu iFood, Zé Delivery ou WhatsApp.</p>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += promoEditorHtml;
+                }
             },
 
-            aiPrompt() {
-                const p = this.state.promo;
-                const prompt = `Motion Design Brief for Alcohol Brand.
-Title: "${p.headline}".
-Product: "${p.item.name}" (Price: ${p.item.price}).
-Brand Colors: Gold (${this.state.colors.primary}) & Black.
-Vibe: Premium, Cinematic, Slow Motion, Particles, Neon Glows.
-Animation: Logo reveal, text slide-in, product pop-up, price impact.`;
-                navigator.clipboard.writeText(prompt);
-                this.showToast('Prompt copiado! Cole no seu gerador de vídeo IA.');
-            },
-
-            // --- EXPORT & SAVE ---
-            exportImage() {
-                const target = this.state.mode === 'menu' ? document.getElementById('preview-menu') : document.getElementById('preview-promo');
-                const btn = document.getElementById('btn-export');
-                const oldContent = btn.innerHTML;
+            renderPreview() {
+                if (this.data.viewMode === 'menu') {
+                    // (Logica de renderização do Menu permanece a mesma...)
+                    const content = document.getElementById('menu-content');
+                    const c = this.data.colors;
+                    content.innerHTML = '';
+                    this.data.sections.forEach(section => {
+                        let html = '';
+                        if (section.type === 'grid') {
+                            const rows = section.items.map(item => `
+                                <div class="flex items-end justify-between py-1 group">
+                                    <span class="flex-1 text-base font-medium text-gray-100 uppercase tracking-tight truncate pr-2">${item.name}</span>
+                                    <div class="flex gap-6 relative">
+                                        <span class="w-16 text-right font-bold text-lg leading-none" style="color:${c.primary}">${item.price1}</span>
+                                        <span class="w-16 text-right font-bold text-lg leading-none" style="color:${c.primary}">${item.price2}</span>
+                                    </div>
+                                </div>
+                                <div class="w-full h-[1px] bg-white/5 mb-1"></div>
+                            `).join('');
+                            html = `
+                                <div class="mb-2">
+                                    <div class="flex items-center justify-between mb-4 border-b border-white/20 pb-2">
+                                        <h2 class="text-3xl font-bebas tracking-widest leading-none text-white">${section.title}</h2>
+                                        <div class="flex gap-6 text-[10px] uppercase font-bold tracking-widest text-gray-400">
+                                            <span class="w-16 text-right">${section.headers[1]}</span>
+                                            <span class="w-16 text-right">${section.headers[2]}</span>
+                                        </div>
+                                    </div>
+                                    <div class="space-y-1">${rows}</div>
+                                </div>`;
+                        } else {
+                            const items = section.items.map(item => `
+                                <div class="flex items-baseline justify-between w-full mb-2">
+                                    <span class="text-lg font-medium uppercase text-gray-100 shrink-0">${item.name}</span>
+                                    <div class="price-leader mx-2 opacity-30 border-b-2 border-dotted"></div>
+                                    <span class="text-xl font-bold font-bebas tracking-wide shrink-0" style="color:${c.primary}">${item.price}</span>
+                                </div>
+                            `).join('');
+                            html = `
+                                <div class="mb-2 w-full">
+                                    <div class="flex items-center gap-4 mb-5">
+                                        <h2 class="text-3xl font-bebas tracking-widest text-white leading-none shrink-0" style="text-shadow: 0 0 15px ${c.primary}66">${section.title}</h2>
+                                        <div class="h-[1px] bg-gradient-to-r from-white/30 to-transparent flex-1"></div>
+                                    </div>
+                                    <div class="flex flex-col w-full">${items}</div>
+                                </div>`;
+                        }
+                        content.innerHTML += html;
+                    });
+                }
                 
-                btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Renderizando...`;
-                lucide.createIcons();
+                this.applyColors();
+            },
 
-                html2canvas(target, {
-                    scale: 3, // High Res
+            downloadImage() {
+                const btn = document.getElementById('btn-download');
+                const originalContent = btn.innerHTML;
+                
+                const elementId = this.data.viewMode === 'menu' ? 'menu-container' : 'promo-container';
+                const fileName = this.data.viewMode === 'menu' ? 'Cardapio-Completo.png' : 'Flyer-Promocao.png';
+                const element = document.getElementById(elementId);
+
+                btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> GERANDO...';
+                btn.classList.add('opacity-75', 'cursor-not-allowed');
+
+                html2canvas(element, {
+                    scale: 3,
+                    backgroundColor: this.data.colors.background,
                     useCORS: true,
-                    backgroundColor: null,
-                    logging: false
+                    allowTaint: true,
+                    onclone: (doc) => {
+                        const el = doc.getElementById(elementId);
+                        el.style.transform = 'none';
+                        el.style.display = 'flex'; // Force display flex on clone
+                    }
                 }).then(canvas => {
                     const link = document.createElement('a');
-                    link.download = `KOBLLUX-${this.state.mode}-${Date.now()}.png`;
+                    link.download = fileName;
                     link.href = canvas.toDataURL('image/png', 1.0);
                     link.click();
                     
-                    btn.innerHTML = oldContent;
-                    lucide.createIcons();
-                    this.showToast('Imagem exportada em Ultra HD!');
+                    btn.innerHTML = originalContent;
+                    btn.classList.remove('opacity-75', 'cursor-not-allowed');
                 });
-            },
-
-            saveStateJSON() {
-                const data = JSON.stringify(this.state);
-                const blob = new Blob([data], {type: 'application/json'});
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'kobllux-data.json';
-                a.click();
-                this.showToast('Backup salvo com sucesso!');
-            },
-
-            loadStateJSON(input) {
-                const file = input.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        this.state = JSON.parse(e.target.result);
-                        this.init();
-                        this.showToast('Dados carregados com sucesso!');
-                    } catch (err) {
-                        this.showToast('Erro ao ler arquivo JSON', 'info');
-                    }
-                };
-                reader.readAsText(file);
             }
         };
 
-        // Initialize
-        window.onload = () => {
-            app.init();
-            app.setupListeners();
-            
-            // Drag and Drop (Simple Sortable Implementation could go here)
-            // For now, using basic array manipulation buttons
-        };
+        window.onload = () => app.init();
     </script>
 </body>
 </html>
+
+
