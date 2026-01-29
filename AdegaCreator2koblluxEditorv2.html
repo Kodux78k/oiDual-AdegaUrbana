@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KOBLLUX Marketing Suite</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Color Thief -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.2/color-thief.umd.js"></script>
+    
+    <!-- HTML2Canvas -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    
+    <!-- QRCode.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <!-- Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Fonts Premium -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'bebas': ['"Bebas Neue"', 'sans-serif'],
+                        'mont': ['"Montserrat"', 'sans-serif'],
+                    },
+                    colors: {
+                        'night-black': '#050505',
+                        'panel-dark': '#0f0f0f',
+                        'panel-light': '#1a1a1a',
+                    },
+                    boxShadow: {
+                        'neon': '0 0 10px rgba(255, 255, 255, 0.1), 0 0 20px rgba(255, 255, 255, 0.05)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* UI Global */
+        body {
+            background-color: #000;
+            color: #e0e0e0;
+            font-family: 'Montserrat', sans-serif;
+            overflow: hidden;
+        }
+
+        /* Editor Scrollbar */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #0f0f0f; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #555; }
+
+        /* Preview Area Specifics */
+        #menu-container, #promo-container {
+            font-family: 'Montserrat', sans-serif;
+            background-image: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            transition: all 0.3s ease;
+        }
+
+        .menu-title-font { font-family: 'Bebas Neue', sans-serif; letter-spacing: 2px; }
+        
+        /* Dotted Leader for Prices */
+        .price-leader {
+            flex-grow: 1;
+            border-bottom: 1px dotted rgba(255,255,255,0.2);
+            margin: 0 10px;
+            position: relative;
+            top: -5px;
+        }
+
+        /* Inputs invisíveis */
+        .live-edit {
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            transition: 0.2s;
+            outline: none;
+            min-width: 20px;
+        }
+        .live-edit:hover, .live-edit:focus {
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.1);
+        }
+
+        /* Input Range Custom */
+        input[type=color] {
+            -webkit-appearance: none;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            overflow: hidden;
+            cursor: pointer;
+            padding: 0;
+        }
+        input[type=color]::-webkit-color-swatch-wrapper { padding: 0; }
+        input[type=color]::-webkit-color-swatch { border: none; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); }
+
+        /* Tabs Styles */
+        .tab-btn.active {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            border-bottom: 2px solid #eab308;
+        }
+        .tab-btn {
+            color: #666;
+            border-bottom: 2px solid transparent;
+        }
+
+        /* Promo Container Text Stroke Effect */
+        .text-stroke {
+            -webkit-text-stroke: 1px rgba(255,255,255,0.2);
+            color: transparent;
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col md:flex-row bg-black">
+
+    <!-- SIDEBAR: EDITOR -->
+    <aside class="w-full md:w-[380px] bg-panel-dark border-r border-white/5 flex flex-col h-[40vh] md:h-full z-20 shadow-2xl">
+        <!-- Header Sidebar -->
+        <div class="p-6 border-b border-white/5 bg-gradient-to-r from-panel-dark to-panel-light">
+            <div class="flex items-center justify-between mb-1">
+                <h1 class="text-2xl font-bebas text-white tracking-widest"><i class="fas fa-layer-group text-yellow-500 mr-2"></i>KOBLLUX <span class="text-xs text-gray-500 font-mont font-normal ml-1">v4.0</span></h1>
+                <div class="h-2 w-2 rounded-full bg-green-500 shadow-[0_0_10px_#22c55e]"></div>
+            </div>
+            <p class="text-[10px] uppercase tracking-widest text-gray-500">Suite de Marketing para Adegas</p>
+        </div>
+
+        <!-- TABS -->
+        <div class="flex border-b border-white/5 bg-panel-dark">
+            <button onclick="app.switchTab('menu')" id="tab-menu" class="tab-btn flex-1 py-3 text-xs font-bold uppercase tracking-wider hover:bg-white/5 transition active">
+                <i class="fas fa-wine-bottle mr-1"></i> Cardápio
+            </button>
+            <button onclick="app.switchTab('promo')" id="tab-promo" class="tab-btn flex-1 py-3 text-xs font-bold uppercase tracking-wider hover:bg-white/5 transition">
+                <i class="fas fa-fire mr-1 text-red-500"></i> Promoção
+            </button>
+        </div>
+
+        <!-- Scroll Area -->
+        <div class="flex-1 overflow-y-auto custom-scroll p-4 space-y-6" id="editor-container">
+            <!-- JS vai injetar aqui dependendo da aba -->
+        </div>
+
+        <!-- Footer Sidebar Actions -->
+        <div class="p-4 bg-panel-dark border-t border-white/5 space-y-3">
+            <div id="menu-actions" class="grid grid-cols-2 gap-3">
+                <button onclick="app.addSection('list')" class="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-gray-300 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition border border-white/5">
+                    <i class="fas fa-list"></i> + Lista
+                </button>
+                <button onclick="app.addSection('grid')" class="flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-gray-300 py-3 rounded-lg text-xs font-bold uppercase tracking-wider transition border border-white/5">
+                    <i class="fas fa-table"></i> + Tabela
+                </button>
+            </div>
+            
+            <button onclick="app.downloadImage()" id="btn-download" class="w-full bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-500 hover:to-yellow-400 text-black font-bold py-4 rounded-lg shadow-neon transition transform active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest text-sm">
+                <i class="fas fa-download"></i> <span id="download-text">Exportar PNG</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN: PREVIEW AREA -->
+    <main class="flex-1 bg-[#0a0a0a] relative overflow-hidden flex flex-col items-center justify-center">
+        <!-- Background Grid Effect -->
+        <div class="absolute inset-0 opacity-20" style="background-image: linear-gradient(#222 1px, transparent 1px), linear-gradient(90deg, #222 1px, transparent 1px); background-size: 40px 40px;"></div>
+        
+        <!-- Wrapper com Scroll -->
+        <div class="w-full h-full overflow-y-auto flex justify-center items-start p-4 md:p-10 custom-scroll z-10">
+            
+            <!-- ======================= -->
+            <!-- MODO CARDÁPIO (MENU) -->
+            <!-- ======================= -->
+            <div id="menu-container" class="relative w-full max-w-[550px] min-h-[850px] flex flex-col shadow-[0_0_80px_rgba(0,0,0,0.9)] text-white overflow-hidden" style="display: flex;">
+                
+                <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-transparent via-current to-transparent opacity-80 z-20" id="top-accent"></div>
+
+                <!-- Header -->
+                <div class="pt-12 pb-6 flex flex-col items-center relative z-10">
+                    <div class="relative group cursor-pointer mb-6">
+                        <div class="absolute inset-0 rounded-full bg-current opacity-30 blur-xl transition group-hover:opacity-50 duration-500 logo-glow"></div>
+                        <div class="w-36 h-36 rounded-full border-[3px] border-white/20 overflow-hidden relative z-10 bg-black shadow-2xl">
+                            <img id="logo-preview-menu" src="https://via.placeholder.com/300/000000/FFFFFF?text=LOGO" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition duration-500">
+                            <div class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300" onclick="document.getElementById('logo-input').click()">
+                                <i class="fas fa-camera text-white text-xl mb-1"></i>
+                                <span class="text-[8px] font-bold uppercase tracking-widest text-white">Alterar</span>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="file" id="logo-input" class="hidden" accept="image/*" onchange="app.handleLogoUpload(this)">
+                    
+                    <h1 id="title-preview" contenteditable="true" class="text-5xl md:text-6xl text-center font-bebas tracking-[0.15em] text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400 live-edit focus:outline-none focus:bg-white/5 px-4 rounded leading-none mt-2 drop-shadow-lg main-title">
+                        ADEGA CLUB
+                    </h1>
+                    <p class="text-[10px] tracking-[0.4em] uppercase text-gray-500 mt-2 font-bold">Premium Drinks & Lounge</p>
+                </div>
+
+                <!-- Conteúdo -->
+                <div id="menu-content" class="px-8 pb-16 flex-1 space-y-10">
+                    <!-- Injetado via JS -->
+                </div>
+
+                <div class="mt-auto py-6 flex justify-center items-center opacity-30">
+                    <div class="h-[1px] w-12 bg-white"></div>
+                    <i class="fas fa-wine-glass text-[10px] mx-3 text-white"></i>
+                    <div class="h-[1px] w-12 bg-white"></div>
+                </div>
+            </div>
+
+            <!-- ======================= -->
+            <!-- MODO PROMOÇÃO (FLYER) -->
+            <!-- ======================= -->
+            <div id="promo-container" class="relative w-full max-w-[500px] aspect-[4/5] shadow-[0_0_80px_rgba(0,0,0,0.9)] text-white overflow-hidden hidden flex-col justify-between p-8 border border-white/5" style="display: none;">
+                
+                <!-- Background Decoration -->
+                <div class="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-current opacity-10 blur-[80px] promo-glow"></div>
+                <div class="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-current opacity-10 blur-[80px] promo-glow"></div>
+                
+                <!-- Promo Header -->
+                <div class="flex justify-between items-start z-10">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-full border border-white/20 overflow-hidden bg-black">
+                             <img id="logo-preview-promo" src="https://via.placeholder.com/300/000000/FFFFFF?text=LOGO" class="w-full h-full object-cover">
+                        </div>
+                        <div class="flex flex-col">
+                             <span class="text-lg font-bebas tracking-widest leading-none main-title">ADEGA CLUB</span>
+                             <span class="text-[8px] uppercase tracking-widest opacity-60">Oferta Especial</span>
+                        </div>
+                    </div>
+                    <div class="px-3 py-1 border border-white/20 rounded-full text-[10px] font-bold uppercase tracking-widest bg-white/5">
+                        <i class="fas fa-bolt text-yellow-500 mr-1"></i> Só Hoje
+                    </div>
+                </div>
+
+                <!-- Promo Content -->
+                <div class="flex-1 flex flex-col justify-center items-center z-10 text-center relative mt-4">
+                     <!-- Texto Fundo Decorativo -->
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-9xl font-bebas opacity-[0.03] whitespace-nowrap pointer-events-none">
+                        PROMOÇÃO
+                    </div>
+
+                    <h2 id="promo-headline" contenteditable="true" class="text-2xl font-bold uppercase tracking-[0.5em] text-yellow-500 mb-2 live-edit">OFFERTA RELÂMPAGO</h2>
+                    
+                    <h1 id="promo-item-name" contenteditable="true" class="text-5xl md:text-6xl font-bebas tracking-wide leading-none mb-4 live-edit">
+                        COMBO RED LABEL
+                    </h1>
+                    
+                    <div class="relative inline-block mt-4 mb-8">
+                        <span class="text-xl line-through text-gray-500 absolute -top-6 left-0 opacity-60">R$ 180,00</span>
+                        <div class="text-8xl font-bebas text-white leading-none tracking-tight flex items-start justify-center gap-2">
+                            <span class="text-3xl mt-2">R$</span>
+                            <span id="promo-item-price" contenteditable="true" class="live-edit">145,00</span>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 items-center justify-center opacity-80 text-xs tracking-widest">
+                        <span class="px-3 py-1 bg-white/10 rounded">GELADA</span>
+                        <span class="w-1 h-1 bg-gray-500 rounded-full"></span>
+                        <span class="px-3 py-1 bg-white/10 rounded">ENTREGA RÁPIDA</span>
+                    </div>
+                </div>
+
+                <!-- Promo Footer (QR) -->
+                <div class="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center justify-between z-10 mt-6 backdrop-blur-md">
+                    <div class="flex flex-col">
+                        <span class="text-[10px] uppercase tracking-widest text-gray-400 mb-1">Peça agora pelo App</span>
+                        <span class="text-lg font-bold text-white flex items-center gap-2">
+                            <i class="fas fa-motorcycle text-yellow-500"></i> DELIVERY ON
+                        </span>
+                    </div>
+                    <div class="bg-white p-2 rounded-lg shadow-lg">
+                        <div id="qrcode" class="w-14 h-14"></div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Script App -->
+    <script>
+        const colorThief = new ColorThief();
+
+        const defaultData = {
+            viewMode: 'menu', // 'menu' or 'promo'
+            colors: {
+                primary: '#D4AF37',
+                text: '#ffffff',
+                background: '#050505',
+                secondary: '#1a1a1a'
+            },
+            promo: {
+                headline: 'OFFERTA RELÂMPAGO',
+                selectedItem: { name: 'Combo Red Label', price: '145,00' },
+                qrLink: 'https://www.ifood.com.br'
+            },
+            sections: [
+                {
+                    id: 1,
+                    type: 'grid', 
+                    title: 'DOSES & COMBOS',
+                    headers: ['BEBIDA', 'DOSE', 'GARRAFA'],
+                    items: [
+                        { name: 'Red Label', price1: '15,00', price2: '140,00' },
+                        { name: 'Black Label', price1: '25,00', price2: '220,00' },
+                        { name: 'Jack Daniel\'s', price1: '22,00', price2: '200,00' },
+                        { name: 'Gold Label', price1: '40,00', price2: '450,00' },
+                        { name: 'Absolut', price1: '18,00', price2: '130,00' },
+                        { name: 'Ciroc', price1: '25,00', price2: '210,00' }
+                    ]
+                },
+                {
+                    id: 2,
+                    type: 'list',
+                    title: 'ESPECIAIS DA CASA',
+                    items: [
+                        { name: 'Combo Gin Tanqueray + 4 Tônicas', price: '280,00' },
+                        { name: 'Combo Ciroc + 2 Sucos + Gelo', price: '320,00' },
+                        { name: 'Combo Red Label + Energético 2L', price: '190,00' },
+                        { name: 'Balde Cerveja Premium (6un)', price: '65,00' }
+                    ]
+                }
+            ]
+        };
+
+        const app = {
+            data: JSON.parse(JSON.stringify(defaultData)),
+
+            init() {
+                this.renderEditor();
+                this.renderPreview();
+                this.generateQR();
+            },
+
+            // --- TAB SWITCHER ---
+            switchTab(mode) {
+                this.data.viewMode = mode;
+                
+                const tabMenu = document.getElementById('tab-menu');
+                const tabPromo = document.getElementById('tab-promo');
+                const menuContainer = document.getElementById('menu-container');
+                const promoContainer = document.getElementById('promo-container');
+                const menuActions = document.getElementById('menu-actions');
+                const downloadText = document.getElementById('download-text');
+
+                if (mode === 'menu') {
+                    tabMenu.classList.add('active');
+                    tabPromo.classList.remove('active');
+                    menuContainer.style.display = 'flex';
+                    promoContainer.style.display = 'none';
+                    menuActions.style.visibility = 'visible';
+                    downloadText.innerText = 'Exportar Cardápio (PNG)';
+                } else {
+                    tabMenu.classList.remove('active');
+                    tabPromo.classList.add('active');
+                    menuContainer.style.display = 'none';
+                    promoContainer.style.display = 'flex';
+                    menuActions.style.visibility = 'hidden';
+                    downloadText.innerText = 'Exportar Flyer (PNG)';
+                    
+                    // Trigger resize for layout adjustment
+                    setTimeout(() => this.generateQR(), 100);
+                }
+
+                this.renderEditor();
+                this.renderPreview(); // Ensure colors apply
+            },
+
+            // --- QR CODE GENERATOR ---
+            generateQR() {
+                const container = document.getElementById('qrcode');
+                container.innerHTML = '';
+                try {
+                    new QRCode(container, {
+                        text: this.data.promo.qrLink,
+                        width: 56,
+                        height: 56,
+                        colorDark : "#000000",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.L
+                    });
+                } catch(e) { console.log('QR Lib not loaded yet'); }
+            },
+
+            updateQR(value) {
+                this.data.promo.qrLink = value;
+                this.generateQR();
+            },
+
+            // --- PROMO LOGIC ---
+            selectPromoItem(value) {
+                // Formato value: "sectionIndex|itemIndex"
+                const [sIdx, iIdx] = value.split('|');
+                const item = this.data.sections[sIdx].items[iIdx];
+                
+                this.data.promo.selectedItem.name = item.name;
+                
+                // Pega o maior preço se tiver dois, ou o único preço
+                if(item.price) {
+                    this.data.promo.selectedItem.price = item.price;
+                } else {
+                    // Logica simples: pega o preço da garrafa (price2)
+                    this.data.promo.selectedItem.price = item.price2 || item.price1;
+                }
+
+                // Update DOM elements directly for smoothness
+                document.getElementById('promo-item-name').innerText = this.data.promo.selectedItem.name;
+                document.getElementById('promo-item-price').innerText = this.data.promo.selectedItem.price;
+            },
+
+            // --- CORE FUNCTIONALITIES ---
+            applyColors() {
+                const c = this.data.colors;
+                const menuC = document.getElementById('menu-container');
+                const promoC = document.getElementById('promo-container');
+                const titles = document.querySelectorAll('.main-title');
+                const glows = document.querySelectorAll('.logo-glow');
+                const promoGlows = document.querySelectorAll('.promo-glow');
+                const topAccent = document.getElementById('top-accent');
+                const promoHeadline = document.getElementById('promo-headline');
+
+                // Apply to Menu
+                menuC.style.backgroundColor = c.background;
+                menuC.style.color = c.text;
+                
+                // Apply to Promo
+                promoC.style.backgroundColor = c.background;
+                promoC.style.color = c.text;
+                promoC.style.borderColor = `${c.primary}33`; // 20% opacity
+
+                // Accents
+                menuC.style.color = c.primary; 
+                promoC.style.color = c.primary;
+
+                titles.forEach(t => t.style.textShadow = `0 0 20px ${c.primary}40`);
+                glows.forEach(g => {
+                    g.style.backgroundColor = c.primary;
+                    g.style.boxShadow = `0 0 60px ${c.primary}60`;
+                });
+                promoGlows.forEach(g => g.style.backgroundColor = c.primary);
+
+                if(topAccent) topAccent.style.backgroundImage = `linear-gradient(90deg, transparent, ${c.primary}, transparent)`;
+                if(promoHeadline) promoHeadline.style.color = c.primary;
+            },
+
+            handleLogoUpload(input) {
+                if (input.files && input.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const imgMenu = document.getElementById('logo-preview-menu');
+                        const imgPromo = document.getElementById('logo-preview-promo');
+                        imgMenu.src = e.target.result;
+                        imgPromo.src = e.target.result;
+                        
+                        imgMenu.onload = () => {
+                            try {
+                                const dominantColor = colorThief.getColor(imgMenu);
+                                const rgbToHex = (r, g, b) => '#' + [r, g, b].map(x => {
+                                    const hex = x.toString(16);
+                                    return hex.length === 1 ? '0' + hex : hex;
+                                }).join('');
+
+                                this.data.colors.primary = rgbToHex(...dominantColor);
+                                this.renderEditor();
+                                this.renderPreview();
+                            } catch (err) { console.warn(err); }
+                        };
+                    };
+                    reader.readAsDataURL(input.files[0]);
+                }
+            },
+
+            // --- CRUD ---
+            changeColor(key, value) {
+                this.data.colors[key] = value;
+                this.renderPreview();
+            },
+            updateItem(sectionId, idx, field, value) {
+                const section = this.data.sections.find(s => s.id === sectionId);
+                if (section) {
+                    section.items[idx][field] = value;
+                    this.renderPreview();
+                }
+            },
+            addItem(sectionId) {
+                const section = this.data.sections.find(s => s.id === sectionId);
+                if (section) {
+                    const newItem = section.type === 'list' 
+                        ? { name: 'Nova Bebida', price: '00,00' }
+                        : { name: 'Nova Bebida', price1: '00,00', price2: '00,00' };
+                    section.items.push(newItem);
+                    this.renderEditor();
+                    this.renderPreview();
+                }
+            },
+            deleteItem(sectionId, idx) {
+                const section = this.data.sections.find(s => s.id === sectionId);
+                if (section) {
+                    section.items.splice(idx, 1);
+                    this.renderEditor();
+                    this.renderPreview();
+                }
+            },
+            updateSectionTitle(sectionId, value) {
+                const section = this.data.sections.find(s => s.id === sectionId);
+                if (section) { section.title = value; this.renderPreview(); }
+            },
+            updateSectionHeader(sectionId, idx, value) {
+                const section = this.data.sections.find(s => s.id === sectionId);
+                if (section) { section.headers[idx] = value; this.renderPreview(); }
+            },
+            addSection(type) {
+                const newId = Date.now();
+                const newSection = type === 'list' 
+                    ? { id: newId, type: 'list', title: 'NOVA SEÇÃO', items: [{ name: 'Exemplo', price: '00,00' }] }
+                    : { id: newId, type: 'grid', title: 'TABELA DE PREÇOS', headers: ['ITEM', 'P', 'G'], items: [{ name: 'Exemplo', price1: '10', price2: '20' }] };
+                this.data.sections.push(newSection);
+                this.renderEditor();
+                this.renderPreview();
+            },
+            deleteSection(sectionId) {
+                if(confirm("Remover esta seção?")) {
+                    this.data.sections = this.data.sections.filter(s => s.id !== sectionId);
+                    this.renderEditor();
+                    this.renderPreview();
+                }
+            },
+
+            // --- RENDERS ---
+            renderEditor() {
+                const container = document.getElementById('editor-container');
+                container.innerHTML = '';
+
+                // Colors Panel (Always Visible)
+                const colorsHtml = `
+                    <div class="glass-panel p-4 rounded-xl mb-6">
+                        <h3 class="text-[10px] uppercase font-bold text-gray-400 mb-3 tracking-widest">Estética & Cores</h3>
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="flex flex-col items-center">
+                                <input type="color" value="${this.data.colors.primary}" onchange="app.changeColor('primary', this.value)" title="Cor Destaque">
+                                <span class="text-[9px] text-gray-500 mt-1">NEON</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <input type="color" value="${this.data.colors.text}" onchange="app.changeColor('text', this.value)" title="Cor Texto">
+                                <span class="text-[9px] text-gray-500 mt-1">TEXTO</span>
+                            </div>
+                            <div class="flex flex-col items-center">
+                                <input type="color" value="${this.data.colors.background}" onchange="app.changeColor('background', this.value)" title="Cor Fundo">
+                                <span class="text-[9px] text-gray-500 mt-1">FUNDO</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += colorsHtml;
+
+                // IF MENU MODE
+                if (this.data.viewMode === 'menu') {
+                    this.data.sections.forEach(section => {
+                        let itemsHtml = '';
+                        section.items.forEach((item, idx) => {
+                            if (section.type === 'list') {
+                                itemsHtml += `
+                                    <div class="flex gap-2 mb-2 items-center group/item">
+                                        <input type="text" value="${item.name}" oninput="app.updateItem(${section.id}, ${idx}, 'name', this.value)" class="bg-white/5 text-gray-200 text-xs p-2 rounded border border-transparent focus:border-yellow-500/50 outline-none flex-1 transition">
+                                        <input type="text" value="${item.price}" oninput="app.updateItem(${section.id}, ${idx}, 'price', this.value)" class="bg-white/5 text-gray-200 text-xs p-2 rounded border border-transparent focus:border-yellow-500/50 outline-none w-16 text-right transition font-mono">
+                                        <button onclick="app.deleteItem(${section.id}, ${idx})" class="text-gray-600 hover:text-red-500 w-6 opacity-0 group-hover/item:opacity-100 transition"><i class="fas fa-times"></i></button>
+                                    </div>`;
+                            } else {
+                                itemsHtml += `
+                                    <div class="flex gap-2 mb-2 items-center group/item">
+                                        <input type="text" value="${item.name}" oninput="app.updateItem(${section.id}, ${idx}, 'name', this.value)" class="bg-white/5 text-gray-200 text-xs p-2 rounded border border-transparent focus:border-yellow-500/50 outline-none flex-1 transition">
+                                        <input type="text" value="${item.price1}" oninput="app.updateItem(${section.id}, ${idx}, 'price1', this.value)" class="bg-white/5 text-gray-200 text-xs p-2 rounded border border-transparent focus:border-yellow-500/50 outline-none w-14 text-center transition font-mono">
+                                        <input type="text" value="${item.price2}" oninput="app.updateItem(${section.id}, ${idx}, 'price2', this.value)" class="bg-white/5 text-gray-200 text-xs p-2 rounded border border-transparent focus:border-yellow-500/50 outline-none w-14 text-center transition font-mono">
+                                        <button onclick="app.deleteItem(${section.id}, ${idx})" class="text-gray-600 hover:text-red-500 w-6 opacity-0 group-hover/item:opacity-100 transition"><i class="fas fa-times"></i></button>
+                                    </div>`;
+                            }
+                        });
+
+                        const sectionHtml = `
+                            <div class="bg-panel-light/50 border border-white/5 p-4 rounded-xl mb-6 relative group hover:border-white/10 transition">
+                                <div class="absolute -right-2 -top-2 opacity-0 group-hover:opacity-100 transition z-10">
+                                    <button onclick="app.deleteSection(${section.id})" class="bg-red-500/20 hover:bg-red-500 text-red-500 hover:text-white p-2 rounded-full w-8 h-8 flex items-center justify-center backdrop-blur-sm transition"><i class="fas fa-trash-alt text-xs"></i></button>
+                                </div>
+                                <div class="mb-4">
+                                    <input type="text" value="${section.title}" oninput="app.updateSectionTitle(${section.id}, this.value)" class="w-full bg-transparent text-lg font-bebas tracking-wide text-white border-b border-transparent focus:border-yellow-500/50 outline-none placeholder-gray-600 transition">
+                                </div>
+                                <div class="space-y-1">${itemsHtml}</div>
+                                <button onclick="app.addItem(${section.id})" class="mt-4 w-full py-2 rounded border border-dashed border-white/10 text-xs text-gray-500 hover:text-white hover:border-white/30 hover:bg-white/5 transition flex items-center justify-center gap-2"><i class="fas fa-plus"></i> Adicionar Item</button>
+                            </div>`;
+                        container.innerHTML += sectionHtml;
+                    });
+                } 
+                // IF PROMO MODE
+                else {
+                    // Build Select Options
+                    let optionsHtml = '<option value="">-- Selecionar do Cardápio --</option>';
+                    this.data.sections.forEach((sec, sIdx) => {
+                        sec.items.forEach((item, iIdx) => {
+                            optionsHtml += `<option value="${sIdx}|${iIdx}">${item.name}</option>`;
+                        });
+                    });
+
+                    const promoEditorHtml = `
+                        <div class="bg-panel-light/50 border border-white/5 p-4 rounded-xl mb-6">
+                            <h2 class="text-sm font-bold text-yellow-500 mb-4 uppercase tracking-widest"><i class="fas fa-magic mr-2"></i>Configuração do Flyer</h2>
+                            
+                            <div class="mb-4">
+                                <label class="text-[10px] uppercase text-gray-500 font-bold block mb-1">Produto em Destaque</label>
+                                <select onchange="app.selectPromoItem(this.value)" class="w-full bg-black/50 border border-white/10 text-white text-xs p-3 rounded focus:border-yellow-500 outline-none">
+                                    ${optionsHtml}
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="text-[10px] uppercase text-gray-500 font-bold block mb-1">Headline (Chamada)</label>
+                                <input type="text" value="${this.data.promo.headline}" oninput="document.getElementById('promo-headline').innerText = this.value" class="w-full bg-black/50 border border-white/10 text-white text-xs p-3 rounded focus:border-yellow-500 outline-none">
+                            </div>
+
+                             <div class="mb-4">
+                                <label class="text-[10px] uppercase text-gray-500 font-bold block mb-1">Link do Delivery (QR Code)</label>
+                                <input type="text" value="${this.data.promo.qrLink}" oninput="app.updateQR(this.value)" placeholder="https://..." class="w-full bg-black/50 border border-white/10 text-white text-xs p-3 rounded focus:border-yellow-500 outline-none">
+                                <p class="text-[9px] text-gray-500 mt-1">Cole o link do seu iFood, Zé Delivery ou WhatsApp.</p>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += promoEditorHtml;
+                }
+            },
+
+            renderPreview() {
+                if (this.data.viewMode === 'menu') {
+                    // (Logica de renderização do Menu permanece a mesma...)
+                    const content = document.getElementById('menu-content');
+                    const c = this.data.colors;
+                    content.innerHTML = '';
+                    this.data.sections.forEach(section => {
+                        let html = '';
+                        if (section.type === 'grid') {
+                            const rows = section.items.map(item => `
+                                <div class="flex items-end justify-between py-1 group">
+                                    <span class="flex-1 text-base font-medium text-gray-100 uppercase tracking-tight truncate pr-2">${item.name}</span>
+                                    <div class="flex gap-6 relative">
+                                        <span class="w-16 text-right font-bold text-lg leading-none" style="color:${c.primary}">${item.price1}</span>
+                                        <span class="w-16 text-right font-bold text-lg leading-none" style="color:${c.primary}">${item.price2}</span>
+                                    </div>
+                                </div>
+                                <div class="w-full h-[1px] bg-white/5 mb-1"></div>
+                            `).join('');
+                            html = `
+                                <div class="mb-2">
+                                    <div class="flex items-center justify-between mb-4 border-b border-white/20 pb-2">
+                                        <h2 class="text-3xl font-bebas tracking-widest leading-none text-white">${section.title}</h2>
+                                        <div class="flex gap-6 text-[10px] uppercase font-bold tracking-widest text-gray-400">
+                                            <span class="w-16 text-right">${section.headers[1]}</span>
+                                            <span class="w-16 text-right">${section.headers[2]}</span>
+                                        </div>
+                                    </div>
+                                    <div class="space-y-1">${rows}</div>
+                                </div>`;
+                        } else {
+                            const items = section.items.map(item => `
+                                <div class="flex items-baseline justify-between w-full mb-2">
+                                    <span class="text-lg font-medium uppercase text-gray-100 shrink-0">${item.name}</span>
+                                    <div class="price-leader mx-2 opacity-30 border-b-2 border-dotted"></div>
+                                    <span class="text-xl font-bold font-bebas tracking-wide shrink-0" style="color:${c.primary}">${item.price}</span>
+                                </div>
+                            `).join('');
+                            html = `
+                                <div class="mb-2 w-full">
+                                    <div class="flex items-center gap-4 mb-5">
+                                        <h2 class="text-3xl font-bebas tracking-widest text-white leading-none shrink-0" style="text-shadow: 0 0 15px ${c.primary}66">${section.title}</h2>
+                                        <div class="h-[1px] bg-gradient-to-r from-white/30 to-transparent flex-1"></div>
+                                    </div>
+                                    <div class="flex flex-col w-full">${items}</div>
+                                </div>`;
+                        }
+                        content.innerHTML += html;
+                    });
+                }
+                
+                this.applyColors();
+            },
+
+            downloadImage() {
+                const btn = document.getElementById('btn-download');
+                const originalContent = btn.innerHTML;
+                
+                const elementId = this.data.viewMode === 'menu' ? 'menu-container' : 'promo-container';
+                const fileName = this.data.viewMode === 'menu' ? 'Cardapio-Completo.png' : 'Flyer-Promocao.png';
+                const element = document.getElementById(elementId);
+
+                btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> GERANDO...';
+                btn.classList.add('opacity-75', 'cursor-not-allowed');
+
+                html2canvas(element, {
+                    scale: 3,
+                    backgroundColor: this.data.colors.background,
+                    useCORS: true,
+                    allowTaint: true,
+                    onclone: (doc) => {
+                        const el = doc.getElementById(elementId);
+                        el.style.transform = 'none';
+                        el.style.display = 'flex'; // Force display flex on clone
+                    }
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = fileName;
+                    link.href = canvas.toDataURL('image/png', 1.0);
+                    link.click();
+                    
+                    btn.innerHTML = originalContent;
+                    btn.classList.remove('opacity-75', 'cursor-not-allowed');
+                });
+            }
+        };
+
+        window.onload = () => app.init();
+    </script>
+</body>
+</html>
+
+

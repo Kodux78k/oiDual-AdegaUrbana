@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KOBLLUX v7 | Trinity Platform</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.2/color-thief.umd.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;600;800&family=Montserrat:wght@300;400;500;700;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'bebas': ['"Bebas Neue"', 'sans-serif'],
+                        'mont': ['"Montserrat"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#050505',
+                            panel: '#0F0F0F',
+                            accent: '#EAB308',
+                            gold: '#FFD700',
+                            silver: '#C0C0C0',
+                            bronze: '#CD7F32'
+                        }
+                    },
+                    boxShadow: {
+                        'glow': '0 0 20px rgba(234, 179, 8, 0.15)',
+                        'gold': '0 0 30px rgba(255, 215, 0, 0.3)',
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { background-color: #050505; color: #e5e5e5; font-family: 'Montserrat', sans-serif; overflow: hidden; }
+        .custom-scroll::-webkit-scrollbar { width: 5px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #0f0f0f; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        
+        .input-dark { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); transition: 0.2s; }
+        .input-dark:focus { border-color: #EAB308; outline: none; background: rgba(255,255,255,0.06); }
+        
+        /* Device Simulation */
+        .device-frame { 
+            border: 8px solid #222; 
+            border-radius: 40px; 
+            overflow: hidden; 
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        
+        /* Tier Badges */
+        .tier-badge-OURO { background: linear-gradient(135deg, #FFD700, #B8860B); color: black; box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); }
+        .tier-badge-PRATA { background: linear-gradient(135deg, #E0E0E0, #757575); color: black; }
+        .tier-badge-BRONZE { background: linear-gradient(135deg, #CD7F32, #8B4513); color: white; }
+
+        .glass { background: rgba(20, 20, 20, 0.6); backdrop-filter: blur(12px); border-top: 1px solid rgba(255,255,255,0.1); }
+    </style>
+</head>
+<body class="h-screen flex flex-col md:flex-row bg-brand-dark">
+
+    <!-- SIDEBAR: TRINITY BUILDER -->
+    <aside class="w-full md:w-[420px] bg-brand-panel border-r border-white/5 flex flex-col h-full z-30 shadow-2xl relative">
+        
+        <!-- Header -->
+        <div class="p-6 border-b border-white/5 bg-gradient-to-r from-[#111] to-[#080808]">
+            <div class="flex items-center justify-between mb-1">
+                <h1 class="text-2xl font-bebas text-white tracking-widest flex items-center gap-2">
+                    <i data-lucide="triangle" class="text-brand-accent w-5 h-5 fill-current"></i>
+                    TRINITY <span class="text-[9px] text-gray-500 font-mont ml-1 bg-white/5 px-1 rounded">v7.0</span>
+                </h1>
+                <div class="flex gap-2">
+                    <button onclick="di_simulateManifest()" class="text-xs bg-white/5 hover:bg-white/10 px-2 py-1 rounded text-gray-400" title="Simular Fetch Manifest JSON">
+                        <i data-lucide="database" class="w-3 h-3"></i>
+                    </button>
+                    <button onclick="app.saveStateJSON()" class="text-gray-500 hover:text-white transition">
+                        <i data-lucide="save" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+            <p class="text-[9px] uppercase tracking-[0.3em] text-brand-accent">Marketplace • Builder • Client</p>
+        </div>
+
+        <!-- Mode Switcher -->
+        <div class="grid grid-cols-3 border-b border-white/5 bg-[#050505]">
+            <button onclick="app.setMode('menu')" id="btn-mode-menu" class="py-4 text-[9px] font-bold uppercase tracking-widest border-b-2 border-brand-accent text-brand-accent">
+                <i data-lucide="layout-grid" class="w-4 h-4 mx-auto mb-1"></i> Editor
+            </button>
+            <button onclick="app.setMode('promo')" id="btn-mode-promo" class="py-4 text-[9px] font-bold uppercase tracking-widest border-b-2 border-transparent text-gray-600 hover:bg-white/5">
+                <i data-lucide="zap" class="w-4 h-4 mx-auto mb-1"></i> Promo
+            </button>
+            <button onclick="app.setMode('app')" id="btn-mode-app" class="py-4 text-[9px] font-bold uppercase tracking-widest border-b-2 border-transparent text-blue-500 hover:bg-white/5 relative">
+                <div class="absolute top-2 right-2 w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                <i data-lucide="smartphone" class="w-4 h-4 mx-auto mb-1"></i> Client App
+            </button>
+        </div>
+
+        <!-- Scrollable Content -->
+        <div id="editor-scroll" class="flex-1 overflow-y-auto custom-scroll p-5 space-y-6">
+            <!-- Dynamic Content Injected Here -->
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="p-5 bg-[#080808] border-t border-white/5 space-y-3 z-20">
+            <div id="action-area">
+                <!-- Buttons injected by JS -->
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN: PREVIEW / APP SIMULATOR -->
+    <main class="flex-1 bg-[#020202] relative overflow-hidden flex flex-col items-center justify-center">
+        <!-- Background Grid -->
+        <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(#333 1px, transparent 1px); background-size: 30px 30px;"></div>
+        
+        <!-- Mobile Wrapper (Dynamic Width) -->
+        <div id="device-wrapper" class="device-frame bg-black relative flex flex-col shadow-2xl transition-all duration-500 w-[400px] h-[800px]">
+            
+            <!-- --- CLIENT APP HEADER (Only in App Mode) --- -->
+            <div id="app-header" class="hidden absolute top-0 left-0 w-full z-40 glass p-4 pt-10 flex-col animate-in">
+                <div class="flex justify-between items-start mb-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gray-800 to-black border border-white/20 p-0.5 relative">
+                            <img src="https://i.pravatar.cc/100?img=33" class="w-full h-full rounded-full object-cover">
+                            <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-black"></div>
+                        </div>
+                        <div>
+                            <div class="text-xs text-gray-400 uppercase tracking-wider">Bem-vindo,</div>
+                            <div class="font-bold text-sm text-white leading-none">Cliente VIP</div>
+                        </div>
+                    </div>
+                    <div id="tier-badge" class="px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest tier-badge-BRONZE">
+                        BRONZE
+                    </div>
+                </div>
+                <!-- XP Bar -->
+                <div class="w-full bg-white/10 h-1.5 rounded-full overflow-hidden relative">
+                    <div id="xp-bar" class="h-full bg-brand-accent transition-all duration-1000 w-[20%]"></div>
+                </div>
+                <div class="flex justify-between mt-1 text-[8px] font-bold text-gray-500 uppercase tracking-widest">
+                    <span id="points-display">150 PTS</span>
+                    <span id="next-tier-display">Próximo: 500</span>
+                </div>
+            </div>
+
+            <!-- --- CONTENT AREA (Shared) --- -->
+            <div id="preview-container" class="flex-1 overflow-y-auto custom-scroll relative bg-black">
+                <!-- Menu Content Injected Here -->
+            </div>
+
+            <!-- --- CART FLOATING BUTTON (Only in App Mode) --- -->
+            <div id="app-cart-float" class="hidden absolute bottom-6 left-1/2 -translate-x-1/2 w-[90%] z-50 animate-in">
+                <button onclick="di_openCheckout()" class="w-full bg-brand-accent text-black font-bold py-3 rounded-xl shadow-glow flex justify-between items-center px-6 transition hover:scale-105 active:scale-95">
+                    <div class="flex items-center gap-2">
+                        <div class="bg-black/20 w-6 h-6 rounded-full flex items-center justify-center text-xs font-black" id="cart-count">0</div>
+                        <span class="text-xs uppercase tracking-widest">Ver Sacola</span>
+                    </div>
+                    <span class="text-sm font-black" id="cart-total">R$ 0,00</span>
+                </button>
+            </div>
+            
+        </div>
+    </main>
+
+    <!-- TOASTS -->
+    <div id="toast-container" class="fixed top-5 right-5 z-[100] flex flex-col gap-2 pointer-events-none"></div>
+
+    <script>
+        // --- DATA INTEGRATION LAYER (di_) ---
+        // Simulating the "Backend" and "User Session"
+        const di_state = {
+            user: {
+                name: 'Raphael',
+                points: 150,
+                tier: 'BRONZE', // BRONZE, PRATA, OURO
+                history: []
+            },
+            cart: [],
+            shop: {
+                whatsapp: '5511999999999', // Default stub
+                name: 'Adega Club'
+            }
+        };
+
+        const di_tiers = {
+            'BRONZE': { color: '#CD7F32', next: 500, nextName: 'PRATA' },
+            'PRATA': { color: '#C0C0C0', next: 1500, nextName: 'OURO' },
+            'OURO': { color: '#FFD700', next: 5000, nextName: 'DIAMANTE' }
+        };
+
+        // Core Functions
+        function di_addToCart(item) {
+            di_state.cart.push(item);
+            app.showToast(`+ ${item.name} adicionado!`);
+            di_updateUI();
+        }
+
+        function di_addPoints(amount) {
+            di_state.user.points += amount;
+            // Recalc Tier
+            if(di_state.user.points >= 1500) di_state.user.tier = 'OURO';
+            else if(di_state.user.points >= 500) di_state.user.tier = 'PRATA';
+            else di_state.user.tier = 'BRONZE';
+            
+            app.showToast(`+${amount} XP Ganhos!`, 'gold');
+            di_updateUI();
+        }
+
+        function di_updateUI() {
+            // Update Cart UI
+            const total = di_state.cart.reduce((sum, i) => sum + parseFloat(i.price.replace(',','.')), 0);
+            document.getElementById('cart-count').innerText = di_state.cart.length;
+            document.getElementById('cart-total').innerText = `R$ ${total.toFixed(2).replace('.',',')}`;
+
+            // Update Gamification UI
+            const t = di_tiers[di_state.user.tier];
+            const badge = document.getElementById('tier-badge');
+            badge.className = `px-2 py-1 rounded text-[9px] font-black uppercase tracking-widest tier-badge-${di_state.user.tier}`;
+            badge.innerText = di_state.user.tier;
+            
+            document.getElementById('points-display').innerText = `${di_state.user.points} XP`;
+            document.getElementById('next-tier-display').innerText = `Próximo: ${t.next}`;
+            
+            // Progress Bar Logic
+            const prevLimit = di_state.user.tier === 'BRONZE' ? 0 : (di_state.user.tier === 'PRATA' ? 500 : 1500);
+            const range = t.next - prevLimit;
+            const current = di_state.user.points - prevLimit;
+            const pct = Math.min(100, Math.max(0, (current / range) * 100));
+            document.getElementById('xp-bar').style.width = `${pct}%`;
+        }
+
+        function di_openCheckout() {
+            if(di_state.cart.length === 0) return app.showToast('Carrinho vazio!', 'info');
+            
+            const total = di_state.cart.reduce((sum, i) => sum + parseFloat(i.price.replace(',','.')), 0);
+            let msg = `*NOVO PEDIDO - ${app.state.menu.title}*\n\n`;
+            msg += `👤 Cliente: ${di_state.user.name} (${di_state.user.tier})\n`;
+            msg += `--------------------------------\n`;
+            di_state.cart.forEach(i => msg += `• 1x ${i.name} ... R$ ${i.price}\n`);
+            msg += `--------------------------------\n`;
+            msg += `*TOTAL: R$ ${total.toFixed(2).replace('.',',')}*\n`;
+            msg += `📍 Endereço: Retirar no balcão\n`; 
+            
+            const url = `https://wa.me/${di_state.shop.whatsapp}?text=${encodeURIComponent(msg)}`;
+            
+            // Simulation
+            if(confirm("Abrir WhatsApp com o pedido?\n\n" + msg)) {
+                window.open(url, '_blank');
+                di_addPoints(Math.floor(total)); // Gamification Trigger
+                di_state.cart = [];
+                di_updateUI();
+            }
+        }
+
+        function di_simulateManifest() {
+            // Mock fetching from external JSON
+            app.showToast('Buscando manifest.json...', 'info');
+            setTimeout(() => {
+                app.state.menu.title = "ADEGA RAPHAEL (Manifest)";
+                app.state.menu.sections = [
+                    { id: 99, type: 'grid', title: 'IMPORTADOS (API)', items: [{name: 'Grey Goose', p1: '25', p2: '240'}, {name: 'Belvedere', p1: '28', p2: '260'}] }
+                ];
+                app.renderPreview();
+                app.showToast('Manifest carregado!');
+            }, 1000);
+        }
+
+        // --- APP LOGIC (EDITOR) ---
+        const app = {
+            state: {
+                mode: 'menu', // menu, promo, app
+                colors: { primary: '#EAB308', bg: '#000000', text: '#FFFFFF' },
+                menu: {
+                    title: 'ADEGA CLUB',
+                    sections: [
+                        { id: 1, type: 'grid', title: 'WHISKY & GIN', items: [{name: 'Red Label', p1: '15,00', p2: '140,00'}, {name: 'Jack Daniels', p1: '22,00', p2: '190,00'}] },
+                        { id: 2, type: 'list', title: 'COMBOS VIP', items: [{name: 'Combo Tanqueray + 4 Tônicas', p: '280,00'}] }
+                    ]
+                },
+                promo: { headline: 'HOJE TEM', sub: 'OFERTA RELÂMPAGO', item: {name:'Combo Red Label', price:'140', oldPrice:'180'}, qr:'pix-key-here' }
+            },
+
+            init() {
+                this.setMode('menu');
+                di_updateUI();
+            },
+
+            setMode(m) {
+                this.state.mode = m;
+                
+                // UI Toggles
+                document.querySelectorAll('aside button[id^="btn-mode-"]').forEach(b => {
+                    const active = b.id === `btn-mode-${m}`;
+                    b.className = active 
+                        ? 'py-4 text-[9px] font-bold uppercase tracking-widest border-b-2 border-brand-accent text-brand-accent transition-all bg-white/5' 
+                        : 'py-4 text-[9px] font-bold uppercase tracking-widest border-b-2 border-transparent text-gray-600 hover:bg-white/5 transition-all';
+                });
+
+                // Device Frame Logic
+                const frame = document.getElementById('device-wrapper');
+                const appHeader = document.getElementById('app-header');
+                const appCart = document.getElementById('app-cart-float');
+                const previewContainer = document.getElementById('preview-container');
+
+                if (m === 'app') {
+                    // App Client Mode
+                    frame.style.width = '375px'; // Mobile width
+                    frame.style.height = '750px';
+                    appHeader.style.display = 'flex';
+                    appCart.style.display = 'block';
+                    previewContainer.style.paddingTop = '140px'; // Space for header
+                    previewContainer.style.paddingBottom = '100px'; // Space for cart
+                    this.renderPreview(); // Renders menu with "Add" buttons
+                    this.renderAppSimulatorControls();
+                } else if (m === 'promo') {
+                    // Promo Mode
+                    frame.style.width = '400px';
+                    frame.style.height = '700px';
+                    appHeader.style.display = 'none';
+                    appCart.style.display = 'none';
+                    previewContainer.style.paddingTop = '0';
+                    this.renderPromoEditor();
+                    this.renderPromoPreview();
+                } else {
+                    // Editor Menu Mode
+                    frame.style.width = '500px'; // Menu width
+                    frame.style.height = '800px';
+                    appHeader.style.display = 'none';
+                    appCart.style.display = 'none';
+                    previewContainer.style.paddingTop = '0';
+                    this.renderMenuEditor();
+                    this.renderPreview();
+                }
+                
+                lucide.createIcons();
+            },
+
+            // --- RENDERERS ---
+
+            renderMenuEditor() {
+                const container = document.getElementById('editor-scroll');
+                container.innerHTML = `
+                    <div class="space-y-4 animate-in">
+                        <div class="glass p-4 rounded-xl border border-white/5">
+                            <label class="text-[9px] text-gray-500 font-bold uppercase">Título da Loja</label>
+                            <input type="text" value="${this.state.menu.title}" oninput="app.updateTitle(this.value)" class="input-dark w-full p-2 rounded text-white font-bebas text-lg mt-1">
+                            <div class="mt-3 grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="text-[9px] text-gray-500 font-bold uppercase">Cor Destaque</label>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <input type="color" value="${this.state.colors.primary}" onchange="app.updateColor('primary', this.value)">
+                                        <span class="text-xs text-gray-400 font-mono">${this.state.colors.primary}</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="text-[9px] text-gray-500 font-bold uppercase">WhatsApp (Pedido)</label>
+                                    <input type="text" value="${di_state.shop.whatsapp}" oninput="di_state.shop.whatsapp = this.value" class="input-dark w-full p-1 rounded text-xs mt-1 font-mono">
+                                </div>
+                            </div>
+                        </div>
+                        <div id="sections-list" class="space-y-4"></div>
+                    </div>
+                `;
+                
+                // Render Sections Loop
+                const list = document.getElementById('sections-list');
+                this.state.menu.sections.forEach((sec, sIdx) => {
+                    let itemsHtml = sec.items.map((it, iIdx) => `
+                        <div class="flex gap-2 items-center group">
+                            <input value="${it.name}" oninput="app.editItem(${sec.id}, ${iIdx}, 'name', this.value)" class="input-dark flex-1 p-1.5 rounded text-xs">
+                            <input value="${it.p1||it.p}" oninput="app.editItem(${sec.id}, ${iIdx}, '${it.p1?'p1':'p'}', this.value)" class="input-dark w-16 p-1.5 rounded text-xs text-right text-brand-accent">
+                            <button onclick="app.delItem(${sec.id}, ${iIdx})" class="text-red-500 hover:text-white opacity-0 group-hover:opacity-100"><i data-lucide="x" class="w-3 h-3"></i></button>
+                        </div>
+                    `).join('');
+
+                    list.innerHTML += `
+                        <div class="glass p-3 rounded-xl border border-white/5 group relative">
+                            <div class="flex justify-between mb-2">
+                                <input value="${sec.title}" oninput="app.editSec(${sec.id}, this.value)" class="bg-transparent text-brand-accent font-bold uppercase text-xs w-full outline-none">
+                                <button onclick="app.delSec(${sec.id})" class="text-gray-600 hover:text-red-500"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+                            </div>
+                            <div class="space-y-2 mb-2">${itemsHtml}</div>
+                            <button onclick="app.addItem(${sec.id})" class="w-full py-1.5 border border-dashed border-white/10 rounded text-[9px] uppercase hover:bg-white/5 text-gray-500 hover:text-white">+ Item</button>
+                        </div>
+                    `;
+                });
+
+                document.getElementById('action-area').innerHTML = `
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="app.addSec('list')" class="py-3 bg-white/5 rounded-lg border border-white/5 text-[10px] uppercase font-bold hover:bg-white/10">+ Lista</button>
+                        <button onclick="app.addSec('grid')" class="py-3 bg-white/5 rounded-lg border border-white/5 text-[10px] uppercase font-bold hover:bg-white/10">+ Grid</button>
+                    </div>
+                    <button onclick="app.exportImage('menu')" class="w-full py-3 bg-brand-accent text-black font-bold uppercase text-xs rounded-lg shadow-glow mt-2 flex items-center justify-center gap-2"><i data-lucide="download" class="w-4 h-4"></i> Baixar Cardápio</button>
+                `;
+            },
+
+            renderAppSimulatorControls() {
+                const container = document.getElementById('editor-scroll');
+                container.innerHTML = `
+                    <div class="p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl mb-4 animate-in">
+                        <h3 class="text-blue-400 font-bold text-xs uppercase mb-2 flex items-center gap-2"><i data-lucide="settings-2" class="w-3 h-3"></i> Painel de Simulação</h3>
+                        <p class="text-[9px] text-gray-400 mb-4">Teste a experiência do seu cliente final. Adicione pontos manualmente ou faça pedidos para ver a gamificação.</p>
+                        
+                        <div class="grid grid-cols-2 gap-2 mb-4">
+                            <button onclick="di_addPoints(50)" class="bg-white/5 hover:bg-white/10 p-2 rounded text-[10px] border border-white/10">+50 XP</button>
+                            <button onclick="di_addPoints(200)" class="bg-white/5 hover:bg-white/10 p-2 rounded text-[10px] border border-white/10">+200 XP</button>
+                        </div>
+                        <div class="mb-2">
+                            <label class="text-[9px] text-gray-500 uppercase">Nome do Cliente</label>
+                            <input value="${di_state.user.name}" oninput="di_state.user.name = this.value; di_updateUI()" class="input-dark w-full p-2 rounded text-xs mt-1">
+                        </div>
+                        <div class="text-[9px] text-gray-500 italic mt-2">
+                            * No app real, os pontos são automáticos após o pagamento via API.
+                        </div>
+                    </div>
+                `;
+                document.getElementById('action-area').innerHTML = `<div class="text-[9px] text-center text-gray-600">MODO SIMULAÇÃO ATIVO</div>`;
+            },
+
+            renderPromoEditor() {
+                const container = document.getElementById('editor-scroll');
+                const p = this.state.promo;
+                container.innerHTML = `
+                    <div class="space-y-4 animate-in">
+                        <div class="glass p-4 rounded-xl border border-white/5">
+                            <h3 class="text-brand-accent font-bold text-xs uppercase mb-3">Configuração do Flyer</h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="text-[9px] text-gray-500 uppercase">Headline</label>
+                                    <input value="${p.headline}" oninput="app.updatePromo('headline', this.value)" class="input-dark w-full p-2 rounded text-sm text-white font-bold">
+                                </div>
+                                <div>
+                                    <label class="text-[9px] text-gray-500 uppercase">Produto</label>
+                                    <input value="${p.item.name}" oninput="app.updatePromoItem('name', this.value)" class="input-dark w-full p-2 rounded text-sm text-white">
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="text-[9px] text-gray-500 uppercase">Preço De</label>
+                                        <input value="${p.item.oldPrice}" oninput="app.updatePromoItem('oldPrice', this.value)" class="input-dark w-full p-2 rounded text-xs">
+                                    </div>
+                                    <div>
+                                        <label class="text-[9px] text-gray-500 uppercase">Por Apenas</label>
+                                        <input value="${p.item.price}" oninput="app.updatePromoItem('price', this.value)" class="input-dark w-full p-2 rounded text-xs text-brand-accent font-bold">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('action-area').innerHTML = `
+                    <button onclick="app.exportImage('promo')" class="w-full py-3 bg-brand-accent text-black font-bold uppercase text-xs rounded-lg shadow-glow flex items-center justify-center gap-2"><i data-lucide="download" class="w-4 h-4"></i> Baixar Flyer</button>
+                `;
+            },
+
+            // --- CORE PREVIEW LOGIC ---
+
+            renderPreview() {
+                const container = document.getElementById('preview-container');
+                const c = this.state.colors;
+                const isAppMode = this.state.mode === 'app';
+                
+                container.innerHTML = '';
+
+                // Header in Menu Mode (Hidden in App Mode as it has its own)
+                if(!isAppMode) {
+                    container.innerHTML += `
+                        <div class="p-8 text-center">
+                            <h1 class="text-5xl font-bebas text-white tracking-widest leading-none mb-2">${this.state.menu.title}</h1>
+                            <div class="h-1 w-20 bg-[${c.primary}] mx-auto mb-6"></div>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML += `<div class="p-4"><h2 class="text-lg font-bold text-white mb-2">Cardápio</h2></div>`;
+                }
+
+                // Render Sections
+                this.state.menu.sections.forEach(sec => {
+                    let itemsHtml = '';
+                    
+                    if (sec.type === 'grid') {
+                        // Grid Layout
+                        itemsHtml = sec.items.map(it => `
+                            <div class="flex items-center justify-between py-2 border-b border-white/5">
+                                <div class="flex-1">
+                                    <div class="text-sm font-bold text-gray-200 uppercase">${it.name}</div>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <div class="text-right">
+                                        <div class="text-xs text-[${c.primary}] font-bebas text-lg">${it.p1}</div>
+                                        ${it.p2 ? `<div class="text-[9px] text-gray-500">GARRAFA: ${it.p2}</div>` : ''}
+                                    </div>
+                                    ${isAppMode ? `<button onclick="di_addToCart({name:'${it.name}', price:'${it.p1}'})" class="bg-white/10 hover:bg-white/20 w-8 h-8 rounded-full text-brand-accent flex items-center justify-center transition active:scale-90"><i data-lucide="plus" class="w-4 h-4"></i></button>` : ''}
+                                </div>
+                            </div>
+                        `).join('');
+                    } else {
+                        // List Layout
+                        itemsHtml = sec.items.map(it => `
+                            <div class="flex items-center justify-between mb-3 bg-white/5 p-3 rounded-lg border border-white/5">
+                                <div class="font-bold text-sm text-gray-200 uppercase">${it.name}</div>
+                                <div class="flex items-center gap-3">
+                                    <div class="font-bebas text-xl text-[${c.primary}]">R$ ${it.p}</div>
+                                    ${isAppMode ? `<button onclick="di_addToCart({name:'${it.name}', price:'${it.p}'})" class="bg-brand-accent text-black w-8 h-8 rounded-full flex items-center justify-center transition active:scale-90 hover:shadow-glow"><i data-lucide="plus" class="w-4 h-4"></i></button>` : ''}
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+
+                    container.innerHTML += `
+                        <div class="px-4 mb-6">
+                            <h3 class="text-brand-accent font-bold text-xs uppercase tracking-widest mb-3 border-l-2 border-brand-accent pl-2">${sec.title}</h3>
+                            <div>${itemsHtml}</div>
+                        </div>
+                    `;
+                });
+                
+                // Extra space for footer
+                container.innerHTML += `<div class="h-20"></div>`;
+                lucide.createIcons();
+            },
+
+            renderPromoPreview() {
+                const container = document.getElementById('preview-container');
+                const p = this.state.promo;
+                const c = this.state.colors;
+                
+                container.innerHTML = `
+                    <div class="h-full flex flex-col relative bg-[#050505]">
+                        <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+                        
+                        <div class="flex-1 flex flex-col items-center justify-center p-8 z-10 text-center">
+                            <div class="mb-4">
+                                <h3 class="text-2xl font-black italic text-brand-accent neon-text">${p.headline}</h3>
+                                <p class="text-[10px] uppercase tracking-[0.3em] text-white/50">${p.sub}</p>
+                            </div>
+                            
+                            <h1 class="text-5xl font-bebas text-white leading-none mb-6 drop-shadow-lg">${p.item.name}</h1>
+                            
+                            <div class="bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-2xl shadow-gold transform rotate-1">
+                                <span class="block text-sm text-gray-400 line-through mb-1">R$ ${p.item.oldPrice}</span>
+                                <span class="block text-7xl font-bebas text-brand-accent leading-none">${p.item.price}</span>
+                            </div>
+                        </div>
+
+                        <div class="p-6 bg-[#111] z-10 border-t border-white/10 flex items-center justify-between">
+                            <div class="text-left">
+                                <p class="text-white font-bold text-xs">PEDIR AGORA</p>
+                                <p class="text-[8px] text-gray-500">APP EXCLUSIVO</p>
+                            </div>
+                            <div class="bg-white p-1 rounded" id="qr-target"></div>
+                        </div>
+                    </div>
+                `;
+                
+                setTimeout(() => {
+                    document.getElementById('qr-target').innerHTML = '';
+                    new QRCode(document.getElementById('qr-target'), {text: 'https://kobllux.app', width:40, height:40});
+                }, 50);
+                lucide.createIcons();
+            },
+
+            // --- UTILS ---
+            updateTitle(v){ this.state.menu.title = v; this.renderPreview(); },
+            updateColor(k,v){ this.state.colors[k] = v; this.renderPreview(); },
+            updatePromo(k,v){ this.state.promo[k] = v; this.renderPromoPreview(); },
+            updatePromoItem(k,v){ this.state.promo.item[k] = v; this.renderPromoPreview(); },
+            editItem(sid,iid,k,v){ this.state.menu.sections.find(s=>s.id===sid).items[iid][k]=v; if(this.state.mode==='promo') this.renderPromoPreview(); else this.renderPreview(); },
+            editSec(sid,v){ this.state.menu.sections.find(s=>s.id===sid).title=v; this.renderPreview(); },
+            delItem(sid,iid){ this.state.menu.sections.find(s=>s.id===sid).items.splice(iid,1); this.renderMenuEditor(); this.renderPreview(); },
+            delSec(sid){ this.state.menu.sections = this.state.menu.sections.filter(s=>s.id!==sid); this.renderMenuEditor(); this.renderPreview(); },
+            addItem(sid){ 
+                const s = this.state.menu.sections.find(s=>s.id===sid);
+                s.items.push(s.type==='grid'?{name:'Novo Item',p1:'00',p2:''}:{name:'Novo Item',p:'00'});
+                this.renderMenuEditor(); this.renderPreview();
+            },
+            addSec(type){
+                this.state.menu.sections.push({id:Date.now(), type, title:'NOVA SEÇÃO', items:[]});
+                this.renderMenuEditor(); this.renderPreview();
+            },
+            exportImage(target){
+                const el = document.getElementById(target==='menu'?'preview-container':'preview-container'); // Captures current view
+                const wrap = document.getElementById('device-wrapper');
+                
+                html2canvas(wrap, {scale:2, backgroundColor:null}).then(canvas => {
+                    const a = document.createElement('a');
+                    a.download = `KOBLLUX-${target}-${Date.now()}.png`;
+                    a.href = canvas.toDataURL();
+                    a.click();
+                });
+            },
+            saveStateJSON(){
+                const data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.state));
+                const a = document.createElement('a'); a.href = data; a.download = "data.json"; a.click();
+            },
+            showToast(msg, type='success'){
+                const t = document.getElementById('toast-container');
+                const el = document.createElement('div');
+                const color = type==='gold' ? 'bg-yellow-500 text-black' : (type==='info'?'bg-blue-600 text-white':'bg-green-600 text-white');
+                el.className = `${color} px-4 py-2 rounded-lg shadow-lg text-xs font-bold flex items-center gap-2 transform translate-x-10 transition-all duration-300`;
+                el.innerHTML = `<i data-lucide="${type==='gold'?'star':'check'}" class="w-4 h-4"></i> ${msg}`;
+                t.appendChild(el);
+                lucide.createIcons();
+                requestAnimationFrame(()=>el.classList.remove('translate-x-10'));
+                setTimeout(()=>{ el.classList.add('opacity-0','translate-x-10'); setTimeout(()=>el.remove(),300); }, 3000);
+            }
+        };
+
+        window.onload = () => app.init();
+    </script>
+</body>
+</html>
+
